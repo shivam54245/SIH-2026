@@ -6,6 +6,7 @@ AI GENERATED:
 
 from typing import Optional, List, Generic, TypeVar
 from pydantic import BaseModel
+from sqlalchemy import Engine, event
 from sqlmodel import SQLModel, create_engine, Session
 
 
@@ -48,3 +49,10 @@ def get_session():
     """FastAPI dependency that yields an isolated transaction session per request."""
     with Session(engine) as session:
         yield session
+
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()

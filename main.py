@@ -5,17 +5,22 @@ AI GENERATED:
 
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
-from database import create_db_and_tables
-import models
+from fastapi import FastAPI, Depends, HTTPException, status
+from database import create_db_and_tables, ApiResponse, get_session, ErrorPayload
+from pydantic import BaseModel, EmailStr, model_validator
+from sqlmodel import Session, select
+from userTypes import User, UserRole, DoctorProfile, PatientProfile, StageOfCare
+from authenticator import hash_password
 
-# TODO: Understand this bit.
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_db_and_tables()
     yield
 
-app = FastAPI(title="Cognitive Dementia Care Platform", lifespan=lifespan)
+app = FastAPI(title="Dementia Care", lifespan=lifespan)
+
 
 
 # LANDING PAGE
@@ -23,3 +28,71 @@ app = FastAPI(title="Cognitive Dementia Care Platform", lifespan=lifespan)
 @app.get("/")
 def home():
     return {"status": "Database and Server are active!"}
+
+
+
+# --- 1. SCHEMAS (What data the user sends to register) ---
+class RegisterRequest(BaseModel):
+    email: EmailStr
+    password: str
+    role: UserRole = UserRole.PATIENT
+    full_name: str
+    specialization: str | None = None
+    stage_of_care: StageOfCare | None = None
+
+    @model_validator(mode="after")
+    def validate_stage_of_care(self):
+        if self.role == UserRole.PATIENT and self.stage_of_care is None:
+            raise ValueError("stage_of_care is required for patients")
+        return self
+
+
+# --- 2. REGISTRATION ROUTE ---
+@app.post(
+    "/api/auth/register",
+    response_model=ApiResponse[dict],
+    status_code=status.HTTP_201_CREATED
+)
+def register_user(payload: RegisterRequest, session: Session = Depends(get_session)):
+    # Check if email is already registered
+    existing_user = session.exec(select(User).where(User.email == payload.email)).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": "EMAIL_ALREADY_EXISTS", "message": "Email is already registered"}
+        )
+
+    # 1. Create and save the base User account
+    new_user = User(
+        email=payload.email,
+        hashed_password=hash_password(payload.password),
+        role=payload.role
+    )
+    session.add(new_user)
+    session.commit()
+    session.refresh(new_user)
+
+    # 2. Automatically create the matching profile based on role
+    if payload.role == UserRole.DOCTOR:
+        doctor_profile = DoctorProfile(
+            user_id=new_user.id,
+            full_name=payload.full_name,
+            specialization=payload.specialization,
+        )
+        session.add(doctor_profile)
+    elif payload.role == UserRole.PATIENT:
+        patient_profile = PatientProfile(
+            user_id=new_user.id,
+            full_name=payload.full_name,
+            stage_of_care=payload.stage_of_care,
+        )
+        session.add(patient_profile)
+
+    session.commit()
+
+    return ApiResponse(
+        success=True,
+        data={"user_id": new_user.id, "email": new_user.email, "role": new_user.role},
+        message="Account created successfully",
+        error=None
+    )
