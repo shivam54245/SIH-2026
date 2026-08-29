@@ -1,17 +1,19 @@
 # Dementia Care API - SIH 2026
 * **URL:** https://dementia-care-yne7.onrender.com
 * **Documentation:** https://dementia-care-yne7.onrender.com/docs  
-  *(`/docs` provides you with all the information about endpoints. I am adding more of them. You should test out the server in the docs to get an idea about JSON strings.)*
+  *(`/docs` provides you with access to endpoints directly in the browser. You can test out the server there to get an idea about JSON strings.)*
 * [Hosting Site Dashboard](
 https://dashboard.render.com/)
 
 ---
 
 ### 🚨 Found a bug?
+Report all minor bugs, tweaks, unintentional behaviour, grammatical errors. <br>
 If you see a **500 Internal Server Error**, or any error starting with **5**, please message me since it indicates a server-side issue. Send me:
 1. **The endpoint**
 2. **The JSON body**
 3. **The error message**
+
 
 ---
 
@@ -20,18 +22,49 @@ If you see a **500 Internal Server Error**, or any error starting with **5**, pl
 * The server will automatically reset after 15 minutes of inactivity. If you want to permanently store some data, let me know. I will manually place it in the database.
 * Why it's online: So the API is accessible without you having to download this repo and set up the virtual environment for it.
 * I will implement a better solution later.
+---
+
+<br>
+
+# Endpoints & Schemas
+
+### `GET /`
+To verify if the server is awake and responding.
+* **Parameters:** None
+* **Success:** `200 OK`
 
 ---
 
-# Routes
-*Will have information about all the endpoints, their purpose, and their parameters.*
+### `POST /api/auth/register`
+Registers a new user account across any role (`PATIENT`, `DOCTOR`, or `ADMIN`).
+* **Parameters:** None
+   <br> *(will require admin account to access in future)*
+* **Success:** `201 Created`
+* **Client Errors:** `400 Bad Request`
+
+**JSON Body:**
+* `email` *(string, required)*: Must be unique.
+* `password` *(string, required)*: Plain text password. Simple strings allowed for testing.
+* `role` *(string, required)*: `PATIENT`, `DOCTOR`, or `ADMIN`.
+* `full_name` *(string, required)*: Display name.
+* `specialization` *(string, optional)*: Used only when role is `DOCTOR`.
+* `stage_of_care` *(string, required for patients)*: `MILD`, `MODERATE`, or `SEVERE`.
+* `assigned_doctor_id` *(integer, optional)*: Must match a valid doctor's `user_id`.
+
+**Example:**
+``` json
+{
+  "email": "patient1@gmail.com",
+  "password": "qwerty123",
+  "role": "PATIENT",
+  "full_name": "John Denver",
+  "stage_of_care": "MILD",
+  "assigned_doctor_id": 1
+} 
+```
 
 ---
-
-# Body
-*Will have details about the expected JSON Strings in the body for every route.*
-
----
+<br>
 
 # Database Schema
 

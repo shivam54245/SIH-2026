@@ -57,6 +57,36 @@ def test_registers_patient_and_creates_patient_profile(session):
     assert session.exec(select(DoctorProfile)).first() is None
 
 
+def test_patient_can_be_assigned_via_doctor_user_id(session):
+    doctor = register_user(make_payload("doctor@example.com", "doctor", "Neurology"), session)
+    doctor_user = session.exec(select(User).where(User.email == "doctor@example.com")).one()
+    doctor_profile = session.exec(
+        select(DoctorProfile).where(DoctorProfile.user_id == doctor_user.id)
+    ).one()
+
+    patient_response = register_user(
+        RegisterRequest(
+            email="patient-assigned-by-user@example.com",
+            password="1234qwerty",
+            role="Patient",
+            full_name="Steven Strange",
+            stage_of_care="Severe",
+            assigned_doctor_id=doctor_user.id,
+        ),
+        session,
+    )
+
+    patient_user = session.exec(
+        select(User).where(User.email == "patient-assigned-by-user@example.com")
+    ).one()
+    patient_profile = session.exec(
+        select(PatientProfile).where(PatientProfile.user_id == patient_user.id)
+    ).one()
+
+    assert patient_response.success is True
+    assert patient_profile.assigned_doctor_id == doctor_profile.id
+
+
 def test_duplicate_email_returns_bad_request(session):
     register_user(make_payload("duplicate@example.com"), session)
 
@@ -65,6 +95,18 @@ def test_duplicate_email_returns_bad_request(session):
 
     assert error.value.status_code == 400
     assert error.value.detail["code"] == "EMAIL_ALREADY_EXISTS"
+
+
+def test_patient_with_invalid_assigned_doctor_does_not_create_user(session):
+    payload = make_payload("bad-assignment@example.com")
+    payload.assigned_doctor_id = 999
+
+    with pytest.raises(HTTPException) as error:
+        register_user(payload, session)
+
+    assert error.value.status_code == 400
+    assert error.value.detail["code"] == "ASSIGNED_DOCTOR_NOT_FOUND"
+    assert session.exec(select(User).where(User.email == "bad-assignment@example.com")).first() is None
 
 
 def test_invalid_registration_payload_is_rejected():

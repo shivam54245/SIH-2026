@@ -39,6 +39,7 @@ class RegisterRequest(BaseModel):
     full_name: str
     specialization: str | None = None
     stage_of_care: StageOfCare | None = None
+    assigned_doctor_id: int | None = None
 
     @model_validator(mode="after")
     def validate_stage_of_care(self):
@@ -61,6 +62,22 @@ def register_user(payload: RegisterRequest, session: Session = Depends(get_sessi
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"code": "EMAIL_ALREADY_EXISTS", "message": "Email is already registered"}
         )
+
+    assigned_doctor_profile_id = None
+
+    # Validate role-specific checks before creating the user.
+    if payload.role == UserRole.PATIENT:
+        if payload.assigned_doctor_id is not None:
+            doctor_profile = session.exec(
+                select(DoctorProfile).where(DoctorProfile.user_id == payload.assigned_doctor_id)
+            ).first()
+            if not doctor_profile:
+                session.rollback()
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={"code": "ASSIGNED_DOCTOR_NOT_FOUND", "message": "Check the assigned doctor ID"}
+                )
+            assigned_doctor_profile_id = doctor_profile.id
 
     # 1. Create and save the base User account
     new_user = User(
@@ -85,6 +102,7 @@ def register_user(payload: RegisterRequest, session: Session = Depends(get_sessi
             user_id=new_user.id,
             full_name=payload.full_name,
             stage_of_care=payload.stage_of_care,
+            assigned_doctor_id=assigned_doctor_profile_id,
         )
         session.add(patient_profile)
 
