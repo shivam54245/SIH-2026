@@ -59,7 +59,7 @@ def register_user(payload: RegisterRequest, session: Session = Depends(get_sessi
     existing_user = session.exec(select(User).where(User.email == payload.email)).first()
     if existing_user:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_409_CONFLICT,
             detail={"code": "EMAIL_ALREADY_EXISTS", "message": "Email is already registered"}
         )
 
@@ -74,7 +74,7 @@ def register_user(payload: RegisterRequest, session: Session = Depends(get_sessi
             if not doctor_profile:
                 session.rollback()
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                     detail={"code": "ASSIGNED_DOCTOR_NOT_FOUND", "message": "Check the assigned doctor ID"}
                 )
             assigned_doctor_profile_id = doctor_profile.id

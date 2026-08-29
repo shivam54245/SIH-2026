@@ -31,7 +31,7 @@ If you see a **500 Internal Server Error**, or any error starting with **5**, pl
 ### `GET /`
 To verify if the server is awake and responding.
 * **Parameters:** None
-* **Success:** `200 OK`
+* **Success:** `200_OK`
 
 ---
 
@@ -39,8 +39,10 @@ To verify if the server is awake and responding.
 Registers a new user account across any role (`PATIENT`, `DOCTOR`, or `ADMIN`).
 * **Parameters:** None
    <br> *(will require admin account to access in future)*
-* **Success:** `201 Created`
-* **Client Errors:** `400 Bad Request`
+* **Success:** `201_CREATED`
+* **Client Errors:** 
+  * `HTTP_409_CONFLICT`: EMAIL_ALREADY_EXISTS
+  * `422_UNPROCESSABLE_CONTENT`: ASSIGNED_DOCTOR_NOT_FOUND 
 
 **JSON Body:**
 * `email` *(string, required)*: Must be unique.
