@@ -93,7 +93,7 @@ def test_duplicate_email_returns_bad_request(session):
     with pytest.raises(HTTPException) as error:
         register_user(make_payload("duplicate@example.com"), session)
 
-    assert error.value.status_code == 400
+    assert error.value.status_code == 409
     assert error.value.detail["code"] == "EMAIL_ALREADY_EXISTS"
 
 
@@ -104,7 +104,7 @@ def test_patient_with_invalid_assigned_doctor_does_not_create_user(session):
     with pytest.raises(HTTPException) as error:
         register_user(payload, session)
 
-    assert error.value.status_code == 400
+    assert error.value.status_code == 422
     assert error.value.detail["code"] == "ASSIGNED_DOCTOR_NOT_FOUND"
     assert session.exec(select(User).where(User.email == "bad-assignment@example.com")).first() is None
 
