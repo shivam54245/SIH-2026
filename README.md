@@ -4,8 +4,10 @@
     https://dementia-care-yne7.onrender.com
   * Local Server: (Running from my machine, Permanent Memory) <br>
     https://blazer-roaming-sapling.ngrok-free.dev/
-* **Documentation:** https://dementia-care-yne7.onrender.com/docs  
-  *(`/docs` provides you with access to endpoints directly in the browser. You can test out the server there to get an idea about JSON strings.)*
+* **Documentation:**
+  * Online Server: https://dementia-care-yne7.onrender.com/docs
+  * Local Server:  https://blazer-roaming-sapling.ngrok-free.dev/docs
+  * *(`/docs` provides you with access to endpoints directly in the browser. You can test out the server there to get an idea about JSON strings.)*
   <br>
 * **Miscellaneous:**
   * [SIH Official PPT Link - **DO NOT SHARE**](https://1drv.ms/p/c/c3d52faaccdd0da3/IQCOI5O-pVHQSIkZ9-ftQqmwAaxSdVtsL0JXLOyf1YbGNxA?e=rZJXHc)
