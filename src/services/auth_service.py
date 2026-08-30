@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 
 from src.database import ApiResponse
 from src.models.user_models import DoctorProfile, PatientProfile, User, UserRole
-from src.utils.authenticator import hash_password
+from src.utils.authenticator import hash_password, verify_password
 
 
 def create_user_account(payload: "RegisterRequest", session: Session):
@@ -58,5 +58,21 @@ def create_user_account(payload: "RegisterRequest", session: Session):
         success=True,
         data={"user_id": new_user.id, "email": new_user.email, "role": new_user.role},
         message="Account created successfully",
+        error=None,
+    )
+
+
+def login_user_account(user_id: int, password: str, session: Session):
+    user = session.get(User, user_id)
+    if user is None or not verify_password(password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"code": "INVALID_CREDENTIALS", "message": "User ID or password is incorrect"},
+        )
+
+    return ApiResponse(
+        success=True,
+        data={"user_id": user.id, "email": user.email, "role": user.role},
+        message="Login successful",
         error=None,
     )
