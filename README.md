@@ -1,5 +1,9 @@
 # Dementia Care API - SIH 2026
-* **URL:** https://dementia-care-yne7.onrender.com
+* **URL:**
+  * Online Server: (Available 24/7, Temporary Memory) <br>
+    https://dementia-care-yne7.onrender.com
+  * Local Server: (Running from my machine, Permanent Memory) <br>
+    https://blazer-roaming-sapling.ngrok-free.dev/
 * **Documentation:** https://dementia-care-yne7.onrender.com/docs  
   *(`/docs` provides you with access to endpoints directly in the browser. You can test out the server there to get an idea about JSON strings.)*
 * [Hosting Site Dashboard](
@@ -21,7 +25,7 @@ If you see a **500 Internal Server Error**, or any error starting with **5**, pl
 * The first request takes 30–50 seconds to wake up the server, according to the website.
 * The server will automatically reset after 15 minutes of inactivity. If you want to permanently store some data, let me know. I will manually place it in the database.
 * Why it's online: So the API is accessible without you having to download this repo and set up the virtual environment for it.
-* I will implement a better solution later.
+* The local server stores data, but only available when my computer is running and connected to internet. Data will be available to the Online Server on the next commit.
 ---
 
 <br>
