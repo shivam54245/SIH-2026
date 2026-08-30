@@ -1,0 +1,18 @@
+ACTIVATE VIRTUAL ENVIROMENT:
+venv\Scripts\Activate.ps1
+
+FASTAPI:
+fastapi dev
+fastapi dev main.py
+
+INSTALL DEPENDENCIES:
+pip install
+venv\Scripts\python.exe -m pip install
+
+OPEN LOCAL SERVER TO CLOUD:
+ngrok http --domain=blazer-roaming-sapling.ngrok-free.dev 8000
+
+SAVE/INSTALL DEPENDENCIES
+pip freeze > requirements.txt
+pip freeze | Out-File -Encoding utf8 requirements.txt
+pip install -r requirements.txt
