@@ -1,9 +1,17 @@
 # Dementia Care API - SIH 2026
-* **URL:** https://dementia-care-yne7.onrender.com
-* **Documentation:** https://dementia-care-yne7.onrender.com/docs  
-  *(`/docs` provides you with access to endpoints directly in the browser. You can test out the server there to get an idea about JSON strings.)*
-* [Hosting Site Dashboard](
-https://dashboard.render.com/)
+* **URL:**
+  * Online Server: https://dementia-care-yne7.onrender.com
+  * Local Server: https://blazer-roaming-sapling.ngrok-free.dev/
+  * *(Online Server resets after 15 mins of inactivity, to store data permanently, use Local Server which runs from directly from my machine, but is running only when my computer is awake.)*
+* **Documentation:**
+  * Online Server: https://dementia-care-yne7.onrender.com/docs
+  * Local Server:  https://blazer-roaming-sapling.ngrok-free.dev/docs
+  * *(`/docs` provides you with access to endpoints directly in the browser. You can test out the server there to get an idea about JSON strings.)*
+  <br>
+* **Miscellaneous:**
+  * [SIH Official PPT Link - **DO NOT SHARE**](https://1drv.ms/p/c/c3d52faaccdd0da3/IQCOI5O-pVHQSIkZ9-ftQqmwAaxSdVtsL0JXLOyf1YbGNxA?e=rZJXHc)
+  * [Notion Link](https://silly-hail-f25.notion.site/SIH-2026-3c8b1ece5c6880fb9088f338a17a3a51?source=copy_link)
+  * [Hosting Site Dashboard](https://dashboard.render.com/)
 
 ---
 
@@ -17,11 +25,11 @@ If you see a **500 Internal Server Error**, or any error starting with **5**, pl
 
 ---
 
-### Free server limitations:
+### Online server limitations:
 * The first request takes 30–50 seconds to wake up the server, according to the website.
 * The server will automatically reset after 15 minutes of inactivity. If you want to permanently store some data, let me know. I will manually place it in the database.
 * Why it's online: So the API is accessible without you having to download this repo and set up the virtual environment for it.
-* I will implement a better solution later.
+* The local server can store data, but requires my computer is awake and logged in. I will keep it online as much as possible. Data will be available to the Online Server on the next commit.
 ---
 
 <br>
