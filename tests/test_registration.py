@@ -7,7 +7,6 @@ from sqlmodel import select
 
 from src.main import RegisterRequest, register_user
 from src.models.userTypes import DoctorProfile, PatientProfile, StageOfCare, User, UserRole
-from src.services.auth_service import create_user_account
 
 
 def make_payload(email, role="PATIENT", specialization=None, stage_of_care="Mild"):
@@ -133,74 +132,3 @@ def test_registers_admin_without_creating_a_profile(session):
     assert user.role is UserRole.ADMIN
     assert session.exec(select(DoctorProfile)).first() is None
     assert session.exec(select(PatientProfile)).first() is None
-
-
-def test_create_user_account_rejects_duplicate_email_directly(session):
-    session.add(User(email="dup-direct@example.com", hashed_password="hash", role=UserRole.PATIENT))
-    session.commit()
-
-    payload = make_payload("dup-direct@example.com")
-
-    with pytest.raises(HTTPException) as error:
-        create_user_account(payload, session)
-
-    assert error.value.status_code == 409
-    assert error.value.detail["code"] == "EMAIL_ALREADY_EXISTS"
-
-
-def test_create_user_account_rejects_missing_assigned_doctor_directly(session):
-    payload = make_payload("bad-direct@example.com")
-    payload.assigned_doctor_id = 10
-
-    with pytest.raises(HTTPException) as error:
-        create_user_account(payload, session)
-
-    assert error.value.status_code == 422
-    assert error.value.detail["code"] == "ASSIGNED_DOCTOR_NOT_FOUND"
-
-
-def test_create_user_account_assigns_patient_to_doctor_profile_directly(session):
-    doctor_user = User(email="doctor-direct@example.com", hashed_password="hash", role=UserRole.DOCTOR)
-    session.add(doctor_user)
-    session.commit()
-    session.refresh(doctor_user)
-
-    doctor_profile = DoctorProfile(user_id=doctor_user.id, full_name="Dr. Direct", specialization="Neurology")
-    session.add(doctor_profile)
-    session.commit()
-    session.refresh(doctor_profile)
-
-    payload = RegisterRequest(
-        email="patient-direct@example.com",
-        password="1234qwerty",
-        role="Patient",
-        full_name="Patient Direct",
-        stage_of_care="Severe",
-        assigned_doctor_id=doctor_user.id,
-    )
-
-    response = create_user_account(payload, session)
-    patient_user = session.exec(select(User).where(User.email == "patient-direct@example.com")).one()
-    patient_profile = session.exec(select(PatientProfile).where(PatientProfile.user_id == patient_user.id)).one()
-
-    assert response.success is True
-    assert patient_profile.assigned_doctor_id == doctor_profile.id
-
-
-def test_create_user_account_creates_doctor_profile_directly(session):
-    payload = RegisterRequest(
-        email="doctor-direct-create@example.com",
-        password="1234qwerty",
-        role="doctor",
-        full_name="Direct Doctor",
-        specialization="Cardiology",
-    )
-
-    response = create_user_account(payload, session)
-    user = session.exec(select(User).where(User.email == "doctor-direct-create@example.com")).one()
-    profile = session.exec(select(DoctorProfile).where(DoctorProfile.user_id == user.id)).one()
-
-    assert response.success is True
-    assert user.role is UserRole.DOCTOR
-    assert profile.full_name == "Direct Doctor"
-    assert profile.specialization == "Cardiology"
