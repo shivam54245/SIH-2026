@@ -6,8 +6,11 @@
     https://blazer-roaming-sapling.ngrok-free.dev/
 * **Documentation:** https://dementia-care-yne7.onrender.com/docs  
   *(`/docs` provides you with access to endpoints directly in the browser. You can test out the server there to get an idea about JSON strings.)*
-* [Hosting Site Dashboard](
-https://dashboard.render.com/)
+  <br>
+* **Miscellaneous:**
+  * [SIH Official PPT Link - **DO NOT SHARE**](https://1drv.ms/p/c/c3d52faaccdd0da3/IQCOI5O-pVHQSIkZ9-ftQqmwAaxSdVtsL0JXLOyf1YbGNxA?e=rZJXHc)
+  * [Notion Link](https://silly-hail-f25.notion.site/SIH-2026-3c8b1ece5c6880fb9088f338a17a3a51?source=copy_link)
+  * [Hosting Site Dashboard](https://dashboard.render.com/)
 
 ---
 
