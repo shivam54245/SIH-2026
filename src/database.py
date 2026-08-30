@@ -3,9 +3,12 @@
 import os
 from typing import Generic, List, Optional, TypeVar
 
+from dotenv import load_dotenv
 from pydantic import BaseModel
 from sqlalchemy import Engine, event
 from sqlmodel import SQLModel, Session, create_engine
+
+load_dotenv()
 
 T = TypeVar("T")
 
@@ -27,15 +30,20 @@ class ApiResponse(BaseModel, Generic[T]):
     error: Optional[ErrorPayload] = None
 
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://neondb_owner:npg_QjanXo6OyEd2@ep-plain-paper-azfuivch-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+DEFAULT_DATABASE_URL = (
+    "postgresql+psycopg://neondb_owner:npg_QjanXo6OyEd2@"
+    "ep-plain-paper-azfuivch-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb"
+    "?sslmode=require"
 )
 
-engine = create_engine(
-    DATABASE_URL,
-    echo=False,
-)
+DATABASE_URL = os.getenv("DATABASE_URL") or DEFAULT_DATABASE_URL
+
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg://", 1)
+elif DATABASE_URL.startswith("postgresql://") and not DATABASE_URL.startswith("postgresql+psycopg://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
+
+engine = create_engine(DATABASE_URL, echo=False)
 
 
 @event.listens_for(Engine, "connect")
