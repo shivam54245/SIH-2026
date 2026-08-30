@@ -48,6 +48,9 @@ engine = create_engine(DATABASE_URL, echo=False)
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
+    if not DATABASE_URL.startswith("sqlite"):
+        return
+
     try:
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
