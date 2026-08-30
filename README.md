@@ -2,7 +2,7 @@
 * **URL:**
   * Online Server: https://dementia-care-yne7.onrender.com
   * Local Server: https://blazer-roaming-sapling.ngrok-free.dev/
-  * *Online Server resets after 15 mins of inactivity, to store data permanently, use Local Server which runs from directly from my machine, but is running only when my computer is awake.*
+  * *(Online Server resets after 15 mins of inactivity, to store data permanently, use Local Server which runs from directly from my machine, but is running only when my computer is awake.)*
 * **Documentation:**
   * Online Server: https://dementia-care-yne7.onrender.com/docs
   * Local Server:  https://blazer-roaming-sapling.ngrok-free.dev/docs
