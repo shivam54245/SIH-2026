@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from sqlmodel import select
 
 from src.main import RegisterRequest, register_user
-from src.models.userTypes import DoctorProfile, PatientProfile, StageOfCare, User, UserRole
+from src.models.user_models import DoctorProfile, PatientProfile, StageOfCare, User, UserRole
 
 
 def make_payload(email, role="PATIENT", specialization=None, stage_of_care="Mild"):

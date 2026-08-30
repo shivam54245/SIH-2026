@@ -3,7 +3,7 @@ from pydantic import BaseModel, EmailStr, model_validator
 from sqlmodel import Session
 
 from src.database import get_session
-from src.models.userTypes import StageOfCare, UserRole
+from src.models.user_models import StageOfCare, UserRole
 from src.services.auth_service import create_user_account
 
 router = APIRouter(prefix="/api/auth")

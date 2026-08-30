@@ -2,11 +2,11 @@ from fastapi import HTTPException, status
 from sqlmodel import Session, select
 
 from src.database import ApiResponse
-from src.models.userTypes import DoctorProfile, PatientProfile, User, UserRole
+from src.models.user_models import DoctorProfile, PatientProfile, User, UserRole
 from src.utils.authenticator import hash_password
 
 
-def create_user_account(payload, session: Session):
+def create_user_account(payload: "RegisterRequest", session: Session):
     existing_user = session.exec(select(User).where(User.email == payload.email)).first()
     if existing_user:
         raise HTTPException(
