@@ -1,6 +1,6 @@
 import pytest
 
-from authenticator import hash_password, verify_password
+from src.utils.authenticator import hash_password, verify_password
 
 
 def test_password_hash_verifies():
