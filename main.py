@@ -1,16 +1,15 @@
 
 from contextlib import asynccontextmanager
-
-from fastapi import FastAPI, HTTPException, status, Depends
-from sqlmodel import Session, select
+from fastapi import FastAPI
 
 from auth import *
 from database import *
 from models import *
 
-from admin import router as admin_router
-from doctor import router as doctor_router
-from patient import router as patient_router
+from src.admin import router as admin_router
+from src.doctor import router as doctor_router
+from src.patient import router as patient_router
+from src.general import router as general_router
 
 
 # APPLICATION SETUP
@@ -20,87 +19,31 @@ async def lifespan(app: FastAPI):
     create_db_and_tables()
     yield
 
-app = FastAPI(title="NER_Chetna", lifespan=lifespan)
+tags_metadata = [
+    {
+        "name": "General",
+        "description": "Public and common platform endpoints such as authentication, and health checks.",
+    },
+    {
+        "name": "Admin",
+        "description": "Administrative control endpoints for role assignment and platform-wide user management.",
+    },
+    {
+        "name": "Doctor",
+        "description": "Doctor operations for managing assigned patients, scheduling pooled reminders, and monitoring care.",
+    },
+    {
+        "name": "Patient",
+        "description": "Patient self-service endpoints for viewing personal profiles, schedules, and active reminders.",
+    },
+]
+
+app = FastAPI(title="NER_Chetna", lifespan=lifespan, 
+              openapi_tags=tags_metadata, swagger_ui_parameters={"operationsSorter": "method"})
 
 app.include_router(admin_router)
 app.include_router(doctor_router)
 app.include_router(patient_router)
-
-
-
-# region GET_ENDPOINTS 
-
-
-# Health check endpoint to verify server status.
-# PUBLIC
-@app.get("/")
-def health_and_setup():
-    # add admin user if not exists
-    with Session(engine) as session:
-        default_admin = select(UserProfile).where(UserProfile.email == "user@example.com")
-        existing_user = session.exec(default_admin).first()
-
-        if not existing_user:
-            new_user = UserProfile(email="user@example.com", hashed_password=hash_password("string"), full_name="string", role=Role.ADMIN)
-            session.add(new_user)
-            session.commit()
-            session .refresh(new_user)
-
-    return "Welcome to the Dementia Care API!"
-
-
-# Retrieves account details for the current user.
-# ADMIN, DOCTOR or PATIENT
-@app.get("/self")
-def get_my_account_info(current_user: UserProfile = Depends(require_roles({Role.ADMIN, Role.DOCTOR, Role.PATIENT}))):
-    return ApiResponse(
-        success=True,
-        data={
-            "id": current_user.id,
-            "email": current_user.email,
-            "full_name": current_user.full_name,
-            "role": current_user.role.value,
-            "last_modified": current_user.last_modified
-        },
-        message="User info retrieved successfully",
-        error=None,
-    )
-
-
-
-# endregion
-
-
-
-# region POST_ENDPOINTS
-
-
-# Creates an active session key for your account.
-# PUBLIC
-@app.post("/login", response_model=TokenResponse)
-def login_via_email_and_password(payload: LoginRequest, session: Session = Depends(get_session)):
-    # Query user by email
-    user = session.exec(
-        select(UserProfile).where(UserProfile.email == payload.email)
-    ).first()
-
-    # Validate user existence and password
-    if not user or not verify_password(payload.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={
-                "code": "INVALID_CREDENTIALS",
-                "message": "Invalid email or password",
-            },
-        )
-
-    # Generate token with email as the subject claim
-    token = create_access_token(data={"sub": user.email})
-
-    return TokenResponse(access_token=token)
-
-
-
-# endregion
+app.include_router(general_router)
 
 

@@ -7,7 +7,7 @@ from database import *
 from models import *
 
 
-router = APIRouter()
+router = APIRouter(tags=["Admin"])
 
 # region GET_ENDPOINTS 
 

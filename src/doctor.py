@@ -5,7 +5,7 @@ from auth import *
 from database import *
 from models import *
 
-router = APIRouter()
+router = APIRouter(tags=["Doctor"])
 
 # region GET_ENDPOINTS 
 
