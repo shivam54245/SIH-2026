@@ -23,15 +23,14 @@ def test_admin_can_assign_patient_to_doctor(client, test_db_session: Session, ad
     assert link is not None
 
 
-def test_doctor_can_self_assign_patient(client, test_db_session: Session, doctor_headers):
+def test_doctor_cannot_self_assign_patient(client, test_db_session: Session, doctor_headers):
     doctor = test_db_session.exec(select(UserProfile).where(UserProfile.email == "doctor@example.com")).first()
     patient = test_db_session.exec(select(UserProfile).where(UserProfile.email == "patient@example.com")).first()
 
     payload = {"doctor_id": doctor.id, "patient_id": patient.id}
     response = client.post("/assign", json=payload, headers=doctor_headers)
 
-    assert response.status_code == 201
-    assert response.json()["success"] is True
+    assert response.status_code == 403
 
 
 def test_doctor_cannot_assign_patient_to_another_doctor(client, test_db_session: Session, doctor_headers):

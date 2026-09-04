@@ -13,8 +13,8 @@ router = APIRouter(tags=["Patient"])
 
 # Retrieves all reminders for the calling patient. (Filters: reminder_id, is_completed, after_datetime)
 # PATIENT
-@router.get("/self/reminders")
-def get_my_reminders_info_requires_patient(reminder_id: int = None, is_completed: bool = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.PATIENT}))):
+@router.get("/myaccount/reminders")
+def get_reminders(reminder_id: int = None, is_completed: bool = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.PATIENT}))):
 
     query = select(ReminderProfile).where(ReminderProfile.user_id == current_user.id)
 
@@ -51,8 +51,8 @@ def get_my_reminders_info_requires_patient(reminder_id: int = None, is_completed
 
 # Retrieves all game records for the calling patient. *(Filters: session_id, game_type, after_datetime)*
 # PATIENT
-@router.get("/self/games")
-def get_my_game_session_info_requires_patient(session_id: int = None, game_type: str = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.PATIENT}))):
+@router.get("/myaccount/games")
+def get_game_sessions(session_id: int = None, game_type: str = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.PATIENT}))):
     return "Yet to be implemented."
 
 
@@ -65,8 +65,8 @@ def get_my_game_session_info_requires_patient(session_id: int = None, game_type:
 
 # Creates a new reminder for the calling patient. (Pooled Data)
 # PATIENT
-@router.post("/self/reminders", status_code=status.HTTP_201_CREATED)
-def add_my_new_reminder_requires_patient(payload: PooledUserReminderRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.PATIENT}))):
+@router.post("/myaccount/reminders", status_code=status.HTTP_201_CREATED)
+def add_new_reminder(payload: PooledUserReminderRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.PATIENT}))):
     reminders = []
     for item in payload.reminder:
         reminder = ReminderProfile(user_id=current_user.id, time=item.time, message=item.message, is_completed=item.is_completed)
@@ -87,8 +87,8 @@ def add_my_new_reminder_requires_patient(payload: PooledUserReminderRequest, ses
 
 # Creates new game records for any specified user. *(Pooled Data)*
 # PATIENT
-@router.post("/self/games", status_code=status.HTTP_201_CREATED)
-def add_my_new_game_session_requires_patient(payload: PooledUserGameSessionRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.PATIENT}))):
+@router.post("/myaccount/games", status_code=status.HTTP_201_CREATED)
+def add_new_game_session(payload: PooledUserGameSessionRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.PATIENT}))):
     return "Yet to be implemented."
 
 

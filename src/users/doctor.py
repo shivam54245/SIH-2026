@@ -12,8 +12,8 @@ router = APIRouter(tags=["Doctor"])
 
 # Lists all patients actively assigned under the calling doctor. (Filters: patient_id)
 # DOCTOR
-@router.get("/self/patients")
-def get_my_patients_info_requires_doctor(patient_id: int = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
+@router.get("/myaccount/patients")
+def get_patients(patient_id: int = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
 
     # Base query: join link table with UserProfile where the doctor is current_user
     query = (select(UserProfile).join(DoctorPatientLink, DoctorPatientLink.patient_id == UserProfile.id)
@@ -41,55 +41,67 @@ def get_my_patients_info_requires_doctor(patient_id: int = None, session: Sessio
     )
 
 
-# Retrieves all scheduled reminders for a specific patient assigned under the calling doctor. (Filters: reminder_id)
+# Retrieves all scheduled reminders for patients assigned under the calling doctor. (Filters: reminder_id)
 # DOCTOR
-@router.get("/self/patients/{patient_id}/reminders")
-def get_my_patient_ke_reminders_requires_doctor(patient_id: int, reminder_id: int = None, is_completed: bool = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
+@router.get("/myaccount/patients/reminders")
+def get_patients_reminders(patient_id: int = None, reminder_id: int = None, is_completed: bool = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
 
-    # 1. Verify doctor-patient care relationship
-    link = session.exec(
-        select(DoctorPatientLink).where(
-            DoctorPatientLink.doctor_id == current_user.id,
-            DoctorPatientLink.patient_id == patient_id,
-        )
-    ).first()
+    # 1. Fetch all assigned patient IDs for this doctor
+    assigned_stmt = select(DoctorPatientLink.patient_id).where(
+        DoctorPatientLink.doctor_id == current_user.id
+    )
+    assigned_patient_ids = session.exec(assigned_stmt).all()
 
-    if not link:
+    if not assigned_patient_ids:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "code": "PATIENT_NOT_ASSIGNED",
-                "message": f"Patient with ID {patient_id} is not assigned to you or does not exist.",
+                "message": "No patients are currently assigned to this doctor.",
             },
         )
 
-    query = select(ReminderProfile).where(ReminderProfile.user_id == patient_id)
+    # 2. Scope verification: ensure requested patient_id belongs to this doctor
+    if patient_id is not None:
+        if patient_id not in assigned_patient_ids:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={
+                    "code": "ACCESS_DENIED",
+                    "message": "You do not have permission to view this patient's records.",
+                },
+            )
+        target_ids = [patient_id]
+    else:
+        target_ids = assigned_patient_ids
 
-    # filters
-    if reminder_id:
+    # 3. Filter
+    query = select(ReminderProfile).where(ReminderProfile.user_id.in_(target_ids))
+
+    if reminder_id is not None:
         query = query.where(ReminderProfile.id == reminder_id)
 
-    if after_datetime:
+    if after_datetime is not None:
         query = query.where(ReminderProfile.last_modified >= after_datetime)
 
-    if is_completed != None:
+    if is_completed is not None:
         query = query.where(ReminderProfile.is_completed == is_completed)
 
     reminders = session.exec(query).all()
-    
+
     return ApiResponse(
         success=True,
         data=[
-        {
-            "id": r.id,
-            "patient_id": r.user_id,
-            "message": r.message,
-            "time": r.time.isoformat() if hasattr(r.time, "isoformat") else str(r.time),
-            "is_completed": r.is_completed,
-            "last_modified": r.last_modified
-        }
-        for r in reminders
-    ],
+            {
+                "id": r.id,
+                "patient_id": r.user_id,
+                "message": r.message,
+                "time": r.last_modified,
+                "is_completed": r.is_completed,
+                "last_modified": r.last_modified,
+            }
+            for r in reminders
+        ],
         message="Patient reminders retrieved successfully",
         error=None,
     )
@@ -97,8 +109,8 @@ def get_my_patient_ke_reminders_requires_doctor(patient_id: int, reminder_id: in
 
 # Retrieves all game records for a specific patient assigned under the calling doctor. *(Filters: session_id, game_type, after_datetime)*
 # DOCTOR
-@router.get("/self/patients/{patient_id}/games")
-def get_my_patient_ke_game_session_requires_doctor(patient_id: int, session_id: int = None, game_type: str = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
+@router.get("/myaccount/patients/games")
+def get_patients_game_sessions(patient_id: int = None, session_id: int = None, game_type: str = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
     return "Yet to be implemented."
 
 
@@ -114,8 +126,8 @@ def get_my_patient_ke_game_session_requires_doctor(patient_id: int, session_id: 
 
 # Creates a new patient profile and automatically binds their care assignment to the calling doctor.
 # DOCTOR
-@router.post("/self/patients", status_code=status.HTTP_201_CREATED)
-def add_my_new_patient_requires_doctor(payload: RegisterRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
+@router.post("/myaccount/patients", status_code=status.HTTP_201_CREATED)
+def add_new_patient(payload: RegisterRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
 
     # Check if email already exists
     existing_user = session.exec(select(UserProfile).where(UserProfile.email == payload.email)).first()
@@ -140,29 +152,28 @@ def add_my_new_patient_requires_doctor(payload: RegisterRequest, session: Sessio
 
 # Schedules a new reminder for a specific patient under the doctor's supervision. (Pooled Data)
 # DOCTOR
-@router.post("/self/patients/{patient_id}/reminders", status_code=status.HTTP_201_CREATED)
-def add_my_patient_ka_new_reminder_requires_doctor(patient_id: int, payload: PooledUserReminderRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
-
-    # 1. Verify doctor-patient care relationship
-    link = session.exec(
-        select(DoctorPatientLink).where(
-            DoctorPatientLink.doctor_id == current_user.id,
-            DoctorPatientLink.patient_id == patient_id,
-        )
-    ).first()
-
-    if not link:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={
-                "code": "PATIENT_NOT_ASSIGNED",
-                "message": f"Patient with ID {patient_id} is not assigned to you or does not exist.",
-            },
-        )
+@router.post("/myaccount/patients/reminders", status_code=status.HTTP_201_CREATED)
+def add_patients_new_reminder(payload: PooledReminderRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
 
     reminders = []
     for item in payload.reminder:
-        reminder = ReminderProfile(user_id=patient_id, time=item.time, message=item.message, is_completed=item.is_completed)
+        link = session.exec(
+            select(DoctorPatientLink).where(
+                DoctorPatientLink.doctor_id == current_user.id,
+                DoctorPatientLink.patient_id == item.patient_id,
+            )
+        ).first()
+
+        if not link:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "code": "PATIENT_NOT_ASSIGNED",
+                    "message": f"Patient with ID {item.patient_id} is not assigned to you or does not exist.",
+                },
+            )
+
+        reminder = ReminderProfile(user_id=item.patient_id, time=item.time, message=item.message, is_completed=item.is_completed)
         reminders.append(reminder)
 
     session.add_all(reminders)

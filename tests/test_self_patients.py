@@ -14,7 +14,7 @@ def test_doctor_creates_patient_and_auto_binds(client, test_db_session: Session,
         "role": Role.PATIENT,
     }
 
-    response = client.post("/self/patients", json=payload, headers=doctor_headers)
+    response = client.post("/myaccount/patients", json=payload, headers=doctor_headers)
     assert response.status_code == 201
 
     created_id = response.json()["data"]["user_id"]
@@ -44,7 +44,7 @@ def test_get_my_patients_isolation(client, test_db_session: Session, doctor_head
     test_db_session.commit()
 
     # Logged-in doctor should see the patient
-    res1 = client.get("/self/patients", headers=doctor_headers)
+    res1 = client.get("/myaccount/patients", headers=doctor_headers)
     assert res1.status_code == 200
     assert len(res1.json()["data"]) == 1
     assert res1.json()["data"][0]["id"] == patient.id
@@ -62,7 +62,7 @@ def test_get_my_patients_isolation(client, test_db_session: Session, doctor_head
     other_doctor_headers = authenticate_user(client, "doctor2@example.com", "doc2_pass")
 
     # Second doctor should see an empty list (tenant isolation)
-    res2 = client.get("/self/patients", headers=other_doctor_headers)
+    res2 = client.get("/myaccount/patients", headers=other_doctor_headers)
     assert res2.status_code == 200
     assert len(res2.json()["data"]) == 0
 
@@ -75,11 +75,11 @@ def test_get_my_patients_filter_by_id(client, test_db_session: Session, doctor_h
     test_db_session.commit()
 
     # Match ID
-    res_match = client.get(f"/self/patients?patient_id={patient.id}", headers=doctor_headers)
+    res_match = client.get(f"/myaccount/patients?patient_id={patient.id}", headers=doctor_headers)
     assert res_match.status_code == 200
     assert len(res_match.json()["data"]) == 1
 
     # Unmatched ID
-    res_no_match = client.get("/self/patients?patient_id=9999", headers=doctor_headers)
+    res_no_match = client.get("/myaccount/patients?patient_id=9999", headers=doctor_headers)
     assert res_no_match.status_code == 200
     assert len(res_no_match.json()["data"]) == 0

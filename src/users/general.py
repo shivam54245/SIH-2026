@@ -14,7 +14,7 @@ router = APIRouter(tags=["General"])
 
 # Health check endpoint to verify server status.
 # PUBLIC
-@router.get("/")
+@router.get("/health")
 def health_and_setup():
     # add admin user if not exists
     with Session(engine) as session:
@@ -32,8 +32,8 @@ def health_and_setup():
 
 # Retrieves account details for the current user.
 # ADMIN, DOCTOR or PATIENT
-@router.get("/self")
-def get_my_account_info(current_user: UserProfile = Depends(require_roles({Role.ADMIN, Role.DOCTOR, Role.PATIENT}))):
+@router.get("/myaccount")
+def get_account(current_user: UserProfile = Depends(require_roles({Role.ADMIN, Role.DOCTOR, Role.PATIENT}))):
     return ApiResponse(
         success=True,
         data={
@@ -58,8 +58,8 @@ def get_my_account_info(current_user: UserProfile = Depends(require_roles({Role.
 
 # Creates an active session key for your account.
 # PUBLIC
-@router.post("/login", response_model=TokenResponse)
-def login_via_email_and_password(payload: LoginRequest, session: Session = Depends(get_session)):
+@router.post("/myaccount", response_model=TokenResponse)
+def login_using_email_and_password(payload: LoginRequest, session: Session = Depends(get_session)):
     # Query user by email
     user = session.exec(
         select(UserProfile).where(UserProfile.email == payload.email)

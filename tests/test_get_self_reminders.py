@@ -2,12 +2,12 @@ from fastapi import status
 
 
 def test_get_self_reminders_unauthorized(client):
-    res = client.get("/self/reminders")
+    res = client.get("/myaccount/reminders")
     assert res.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 def test_get_self_reminders_forbidden_for_doctor(client, doctor_headers):
-    res = client.get("/self/reminders", headers=doctor_headers)
+    res = client.get("/myaccount/reminders", headers=doctor_headers)
     assert res.status_code == status.HTTP_403_FORBIDDEN
 
 
@@ -50,7 +50,7 @@ def test_get_self_reminders_patient_isolation(
     assert post_res.status_code == status.HTTP_201_CREATED
 
     # 3. Patient 3 fetches their own reminders; only their 1 reminder should appear
-    res = client.get("/self/reminders", headers=patient_headers)
+    res = client.get("/myaccount/reminders", headers=patient_headers)
     assert res.status_code == status.HTTP_200_OK
     reminders = res.json().get("data", res.json())
     assert len(reminders) == 1

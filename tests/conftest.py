@@ -67,7 +67,7 @@ def client(test_db_session: Session):
 
 
 def authenticate_user(client: TestClient, email: str, password: str) -> dict:
-    res = client.post("/login", json={"email": email, "password": password})
+    res = client.post("/myaccount", json={"email": email, "password": password})
     assert res.status_code == 200, f"Login failed for {email}: {res.text}"
     token = res.json().get("access_token")
     return {"Authorization": f"Bearer {token}"}

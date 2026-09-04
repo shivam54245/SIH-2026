@@ -1,11 +1,11 @@
 # NER_Chetna API - SIH 2026
 * **URL:**
   * Online Server: https://dementia-care-yne7.onrender.com
-  * Local Server: https://blazer-roaming-sapling.ngrok-free.dev/
+  * Local Server: https://blazer-roaming-sapling.ngrok-free.dev/ *(request access)*
   * *(Online Server resets after 15 mins of inactivity, to store data permanently, use Local Server which runs from directly from my machine, but is running only when my computer is awake.)*
 * **Documentation:**
   * Online Server: https://dementia-care-yne7.onrender.com/docs
-  * Local Server:  https://blazer-roaming-sapling.ngrok-free.dev/docs
+  * Local Server:  https://blazer-roaming-sapling.ngrok-free.dev/docs *(request access)*
   * *(`/docs` provides you with access to endpoints directly in the browser. You can test out the server there to get an idea about JSON strings. Access token can be pasted on the top-right (Padlock Symbol) after login.)*
   <br>
 * **Miscellaneous:**
@@ -38,7 +38,7 @@ If you see a **500 Internal Server Error**, or any error starting with **5**, pl
 
 ## GET ENDPOINTS
 
-### `GET /`
+### `GET /health`
 Health check endpoint to verify server status. 
 * **Access**: `PUBLIC` *(All users)*.
 * **Success**: `200 OK`
@@ -46,7 +46,7 @@ Health check endpoint to verify server status.
 
 ---
 
-### `GET /self`
+### `GET /myaccount`
 Retrieves account details for the current user.
 * **Access**: `ADMIN`, `DOCTOR`or `PATIENT` *(Authenticated users only)*
 * **Success**: `200 OK`
@@ -85,7 +85,7 @@ Retrieves all game records from all patients. *(Filters: patient_id, session_id,
 
 ---
 
-### `GET /self/reminders`
+### `GET /myaccount/reminders`
 Retrieves all reminders for the calling patient. *(Filters: reminder_id, is_completed, after_datetime)*
 * **Access**: `PATIENT`
 * **Success**: `200 OK`
@@ -95,7 +95,7 @@ Retrieves all reminders for the calling patient. *(Filters: reminder_id, is_comp
 
 ---
 
-### `GET /self/games`
+### `GET /myaccount/games`
 Retrieves all game records for the calling patient. *(Filters: session_id, game_type, after_datetime)*
 * **Access**: `PATIENT`
 * **Success**: `200 OK`
@@ -105,7 +105,7 @@ Retrieves all game records for the calling patient. *(Filters: session_id, game_
 
 ---
 
-### `GET /self/patients`
+### `GET /myaccount/patients`
 Lists all patients actively assigned under the calling doctor. *(Filters: patient_id)*
 * **Access**: `DOCTOR`
 * **Success**: `200 OK`
@@ -116,8 +116,8 @@ Lists all patients actively assigned under the calling doctor. *(Filters: patien
 ---
 
 
-### `GET /self/patients/{patient_id}/reminders`
-Retrieves all reminders for a specific patient assigned under the calling doctor. *(Filters: reminder_id, is_completed, after_datetime)*
+### `GET /myaccount/patients/reminders`
+Retrieves all reminders for a specific patient assigned under the calling doctor. *(Filters: patient_id, reminder_id, is_completed, after_datetime)*
 * **Access**: `DOCTOR`
 * **Success**: `200 OK`
 * **Client Errors**:
@@ -127,8 +127,8 @@ Retrieves all reminders for a specific patient assigned under the calling doctor
 
 ---
 
-### `GET /self/patients/{patient_id}/gamedata`
-Retrieves all game records for a specific patient assigned under the calling doctor. *(Filters: session_id, game_type, after_datetime)*
+### `GET /myaccount/patients/games`
+Retrieves all game records for a specific patient assigned under the calling doctor. *(Filters: patient_id, session_id, game_type, after_datetime)*
 * **Access**: `DOCTOR`
 * **Success**: `200 OK`
 * **Client Errors**:
@@ -141,7 +141,7 @@ Retrieves all game records for a specific patient assigned under the calling doc
 
 ## POST ENDPOINTS
 
-### `POST /login`
+### `POST /myaccount`
 Creates an active session key for your account.
 * **Access**: `Public`
 * **Success**: `200 OK`
@@ -195,7 +195,7 @@ Assigns the patient under the doctor's supervision.
 
 ---
 
-### `POST /self/reminders`
+### `POST /myaccount/reminders`
 Creates new reminders for the calling patient. *(Pooled Data)*
 * **Access**: `PATIENT`
 * **Success**: `201 CREATED`
@@ -205,7 +205,7 @@ Creates new reminders for the calling patient. *(Pooled Data)*
 
 ---
 
-### `POST /self/games`
+### `POST /myaccount/games`
 Creates new game records for the calling patient. *(Pooled Data)*
 * **Access**: `PATIENT`
 * **Success**: `201 CREATED`
@@ -215,7 +215,7 @@ Creates new game records for the calling patient. *(Pooled Data)*
 
 ---
 
-### `POST /self/patients`
+### `POST /myaccount/patients`
 Creates a new patient profile and automatically binds their care assignment to the calling doctor.
 * **Access**: `DOCTOR`
 * **Success**: `201 CREATED`
@@ -226,7 +226,7 @@ Creates a new patient profile and automatically binds their care assignment to t
 
 ---
 
-### `POST /self/{patient_id}/reminder`
+### `POST /myaccount/patients/reminder`
 Creates new reminders for a specific patient under the doctor's supervision. *(Pooled Data)*
 * **Access**: `DOCTOR` 
 * **Success**: `201 CREATED`

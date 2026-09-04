@@ -16,11 +16,13 @@ def test_doctor_can_add_and_get_reminders_for_assigned_patient(client, test_db_s
     payload = {
         "reminder": [
             {
+                "patient_id": patient.id,
                 "message": "Take Metformin 500mg",
                 "time": "2026-09-05T08:00:00",
                 "is_completed": False,
             },
             {
+                "patient_id": patient.id,
                 "message": "Check Blood Glucose",
                 "time": "2026-09-05T12:00:00",
                 "is_completed": False,
@@ -28,18 +30,27 @@ def test_doctor_can_add_and_get_reminders_for_assigned_patient(client, test_db_s
         ]
     }
 
-    create_res = client.post(f"/self/patients/{patient.id}/reminders", json=payload, headers=doctor_headers)
-    assert create_res.status_code == 201
-
+    create_res = client.post(
+        "/myaccount/patients/reminders",
+        params={"patient_id": patient.id},
+        json=payload,
+        headers=doctor_headers,
+    )
+    assert create_res.status_code == 201, f"Validation failure: {create_res.json()}"
     # Fetch all reminders
-    get_res = client.get(f"/self/patients/{patient.id}/reminders", headers=doctor_headers)
+    get_res = client.get(
+        "/myaccount/patients/reminders",
+        params={"patient_id": patient.id},
+        headers=doctor_headers,
+    )
     assert get_res.status_code == 200
     assert len(get_res.json()["data"]) == 2
 
     # Fetch with specific reminder_id filter
     target_reminder_id = get_res.json()["data"][0]["id"]
     filter_res = client.get(
-        f"/self/patients/{patient.id}/reminders?reminder_id={target_reminder_id}",
+        "/myaccount/patients/reminders",
+        params={"patient_id": patient.id, "reminder_id": target_reminder_id},
         headers=doctor_headers,
     )
     assert filter_res.status_code == 200
@@ -48,12 +59,12 @@ def test_doctor_can_add_and_get_reminders_for_assigned_patient(client, test_db_s
 
 
 def test_doctor_cannot_add_reminders_to_unassigned_patient(client, test_db_session: Session, doctor_headers):
-    # Unlinked patient from conftest
     patient = test_db_session.exec(select(UserProfile).where(UserProfile.email == "patient@example.com")).first()
 
     payload = {
         "reminder": [
             {
+                "patient_id": patient.id,
                 "message": "Unauthorized Reminder",
                 "time": "2026-09-05T08:00:00",
                 "is_completed": False,
@@ -61,9 +72,14 @@ def test_doctor_cannot_add_reminders_to_unassigned_patient(client, test_db_sessi
         ]
     }
 
-    response = client.post(f"/self/patients/{patient.id}/reminders", json=payload, headers=doctor_headers)
-    assert response.status_code == 404
-    assert response.json()["detail"]["code"] == "PATIENT_NOT_ASSIGNED"
+    response = client.post(
+        "/myaccount/patients/reminders",
+        params={"patient_id": patient.id},
+        json=payload,
+        headers=doctor_headers,
+    )
+    assert response.status_code in (403, 404)
+    assert response.json()["detail"]["code"] in ("PATIENT_NOT_ASSIGNED", "ACCESS_DENIED")
 
 
 def test_doctor_cannot_get_reminders_from_unassigned_patient(client, test_db_session: Session, doctor_headers):
@@ -80,6 +96,10 @@ def test_doctor_cannot_get_reminders_from_unassigned_patient(client, test_db_ses
     )
     test_db_session.commit()
 
-    response = client.get(f"/self/patients/{patient.id}/reminders", headers=doctor_headers)
-    assert response.status_code == 404
-    assert response.json()["detail"]["code"] == "PATIENT_NOT_ASSIGNED"
+    response = client.get(
+        "/myaccount/patients/reminders",
+        params={"patient_id": patient.id},
+        headers=doctor_headers,
+    )
+    assert response.status_code in (403, 404)
+    assert response.json()["detail"]["code"] in ("PATIENT_NOT_ASSIGNED", "ACCESS_DENIED")

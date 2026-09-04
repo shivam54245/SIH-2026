@@ -15,7 +15,7 @@ router = APIRouter(tags=["Admin"])
 # Retrieves a list of all registered users. (Filters: user_id, role, after_datetime)
 # ADMIN
 @router.get("/users")
-def get_all_users_info_requires_admin(user_id: int = None, role: Role = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
+def get_all_users(user_id: int = None, role: Role = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
 
     query = select(UserProfile)
 
@@ -52,7 +52,7 @@ def get_all_users_info_requires_admin(user_id: int = None, role: Role = None, af
 # Retrieves a list of all reminders form all patients. (Filters: reminder_id, patient_id, is_completed, after_datetime)
 # ADMIN
 @router.get("/reminders")
-def get_all_reminders_info_requires_admin(reminder_id: int = None, patient_id: int = None, is_completed: bool = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
+def get_all_reminders(reminder_id: int = None, patient_id: int = None, is_completed: bool = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
 
     query = select(ReminderProfile)
 
@@ -94,7 +94,7 @@ def get_all_reminders_info_requires_admin(reminder_id: int = None, patient_id: i
 # Retrieves all game records for the calling patient. *(Filters: session_id, game_type, after_datetime)*
 # ADMIN
 @router.get("/games")
-def get_all_game_session_info_requires_admin(session_id: int = None, patient_id: int = None, game_type: str = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
+def get_all_game_sessions(session_id: int = None, patient_id: int = None, game_type: str = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
     return "Yet to be implemented."
 
 
@@ -108,7 +108,7 @@ def get_all_game_session_info_requires_admin(session_id: int = None, patient_id:
 # Creates a new user profile.
 # ADMIN
 @router.post("/users", status_code=status.HTTP_201_CREATED)
-def add_new_user_requires_admin(payload: RegisterRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
+def add_new_user(payload: RegisterRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
 
     # Check if email already exists
     existing_user = session.exec(select(UserProfile).where(UserProfile.email == payload.email)).first()
@@ -143,17 +143,7 @@ def add_new_user_requires_admin(payload: RegisterRequest, session: Session = Dep
 # Binds the care of the patient under the doctor's supervision
 # ADMIN, DOCTOR
 @router.post("/assign", status_code=status.HTTP_201_CREATED)
-def assign_patient_to_doctor_requires_admin_or_self_doctor(payload: AssignDoctorRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN, Role.DOCTOR}))):
-
-    # 1. Authorization: If caller is a DOCTOR, they can only assign patients to themselves
-    if (
-        current_user.role == Role.DOCTOR
-        and current_user.id != payload.doctor_id
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Doctors can only assign patients to their own care",
-        )
+def assign_patient_to_doctor(payload: AssignDoctorRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
 
     # 2. Validate Doctor existence and role
     doctor = session.get(UserProfile, payload.doctor_id)
@@ -209,7 +199,7 @@ def assign_patient_to_doctor_requires_admin_or_self_doctor(payload: AssignDoctor
 # Creates a reminder record for any specified user. (Pooled Data)
 # ADMIN
 @router.post("/reminders", status_code=status.HTTP_201_CREATED)
-def add_new_reminder_requires_admin(payload: PooledReminderRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
+def add_new_reminders_for_all_patients(payload: PooledReminderRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
     reminders = []
     for item in payload.reminder:
         # Check if patient_id belongs to a patient
@@ -243,7 +233,7 @@ def add_new_reminder_requires_admin(payload: PooledReminderRequest, session: Ses
 # Creates new game records for any specified user. *(Pooled Data)*
 # ADMIN
 @router.post("/games", status_code=status.HTTP_201_CREATED)
-def add_new_reminder_requires_admin(payload: PooledGameSessionRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
+def add_new_game_sessions_for_all_patients(payload: PooledGameSessionRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
     return "Yet to be implemented."
 
 
