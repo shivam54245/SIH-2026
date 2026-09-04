@@ -1,15 +1,40 @@
-from typing import List, Optional
+from typing import Generic, List, Optional, TypeVar
 from pydantic import BaseModel, EmailStr
 
 from src.database import Role
 
 
+T = TypeVar("T")
+
+
+# Error Models
+
+class ErrorDetail(BaseModel):
+    field: Optional[str] = None
+    issue: str
+
+
+class ErrorPayload(BaseModel):
+    code: str
+    details: Optional[List[ErrorDetail]] = None
+
+
+# Response Models
+
+class ApiResponse(BaseModel, Generic[T]):
+    success: bool
+    data: Optional[T] = None
+    message: str
+    error: Optional[ErrorPayload] = None
 
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
+
+
+# Request Models
 
 class LoginRequest(BaseModel):
     email: EmailStr
@@ -36,12 +61,23 @@ class UserReminderRequest(BaseModel):
     is_completed: Optional[bool] = False
 
 
+class GameSessionRequest(BaseModel):
+    user_id: int
+    game_type: str
+    game_data: str
+
+
+class UserGameSessionRequest(BaseModel):
+    game_type: str
+    game_data: str
+
+
 class AssignDoctorRequest(BaseModel):
     doctor_id: int
     patient_id: int
 
 
-# Pooled request models for batch operations
+# Pooled Request Models for batch operations
 
 class PooledReminderRequest(BaseModel):
     reminder: List[ReminderRequest]
@@ -51,3 +87,11 @@ class PooledUserReminderRequest(BaseModel):
     reminder: List[UserReminderRequest]
 
 
+class PooledGameSessionRequest(BaseModel):
+    reminder: List[GameSessionRequest]
+
+
+class PooledUserGameSessionRequest(BaseModel):
+    reminder: List[UserGameSessionRequest]
+
+    

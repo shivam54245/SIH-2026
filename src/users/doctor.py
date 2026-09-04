@@ -44,7 +44,7 @@ def get_my_patients_info_requires_doctor(patient_id: int = None, session: Sessio
 # Retrieves all scheduled reminders for a specific patient assigned under the calling doctor. (Filters: reminder_id)
 # DOCTOR
 @router.get("/self/patients/{patient_id}/reminders")
-def get_my_patient_ke_reminders_requires_doctor(patient_id: int, reminder_id: int = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
+def get_my_patient_ke_reminders_requires_doctor(patient_id: int, reminder_id: int = None, is_completed: bool = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
 
     # 1. Verify doctor-patient care relationship
     link = session.exec(
@@ -69,6 +69,12 @@ def get_my_patient_ke_reminders_requires_doctor(patient_id: int, reminder_id: in
     if reminder_id:
         query = query.where(ReminderProfile.id == reminder_id)
 
+    if after_datetime:
+        query = query.where(ReminderProfile.last_modified >= after_datetime)
+
+    if is_completed != None:
+        query = query.where(ReminderProfile.is_completed == is_completed)
+
     reminders = session.exec(query).all()
     
     return ApiResponse(
@@ -87,6 +93,15 @@ def get_my_patient_ke_reminders_requires_doctor(patient_id: int, reminder_id: in
         message="Patient reminders retrieved successfully",
         error=None,
     )
+
+
+# Retrieves all game records for a specific patient assigned under the calling doctor. *(Filters: session_id, game_type, after_datetime)*
+# DOCTOR
+@router.get("/self/patients/{patient_id}/games")
+def get_my_patient_ke_game_session_requires_doctor(patient_id: int, session_id: int = None, game_type: str = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
+    return "Yet to be implemented."
+
+
 
 
 # endregion

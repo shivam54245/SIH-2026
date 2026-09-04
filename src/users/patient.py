@@ -49,6 +49,12 @@ def get_my_reminders_info_requires_patient(reminder_id: int = None, is_completed
     )
 
 
+# Retrieves all game records for the calling patient. *(Filters: session_id, game_type, after_datetime)*
+# PATIENT
+@router.get("/self/games")
+def get_my_game_session_info_requires_patient(session_id: int = None, game_type: str = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.PATIENT}))):
+    return "Yet to be implemented."
+
 
 # endregion
 
@@ -79,6 +85,11 @@ def add_my_new_reminder_requires_patient(payload: PooledUserReminderRequest, ses
     )
 
 
+# Creates new game records for any specified user. *(Pooled Data)*
+# PATIENT
+@router.post("/self/games", status_code=status.HTTP_201_CREATED)
+def add_my_new_game_session_requires_patient(payload: PooledUserGameSessionRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.PATIENT}))):
+    return "Yet to be implemented."
 
 
 # endregion

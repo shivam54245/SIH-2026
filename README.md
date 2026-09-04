@@ -56,7 +56,7 @@ Retrieves account details for the current user.
 ---
 
 ### `GET /users`
-Retrieves a list of all registered users. *(Filters: user_id, role)*
+Retrieves details of all registered users. *(Filters: user_id, role, after_datetime)*
 * **Access**: `ADMIN`
 * **Success**: `200 OK`
 * **Client Errors**:
@@ -66,7 +66,17 @@ Retrieves a list of all registered users. *(Filters: user_id, role)*
 ---
 
 ### `GET /reminders`
-Retrieves all reminders from all patients. *(Filters: patient_id, reminder_id)*
+Retrieves all reminders from all patients. *(Filters: patient_id, reminder_id, is_completed, after_datetime)*
+* **Access**: `ADMIN`
+* **Success**: `200 OK`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: User does not possess ADMIN privileges.
+
+---
+
+### `GET /games`
+Retrieves all game records from all patients. *(Filters: patient_id, session_id, game_type, after_datetime)*
 * **Access**: `ADMIN`
 * **Success**: `200 OK`
 * **Client Errors**:
@@ -76,7 +86,17 @@ Retrieves all reminders from all patients. *(Filters: patient_id, reminder_id)*
 ---
 
 ### `GET /self/reminders`
-Retrieves all reminders for the calling patient. *(Filters: reminder_id)*
+Retrieves all reminders for the calling patient. *(Filters: reminder_id, is_completed, after_datetime)*
+* **Access**: `PATIENT`
+* **Success**: `200 OK`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: Caller is not a registered PATIENT.
+
+---
+
+### `GET /self/games`
+Retrieves all game records for the calling patient. *(Filters: session_id, game_type, after_datetime)*
 * **Access**: `PATIENT`
 * **Success**: `200 OK`
 * **Client Errors**:
@@ -95,8 +115,9 @@ Lists all patients actively assigned under the calling doctor. *(Filters: patien
 
 ---
 
+
 ### `GET /self/patients/{patient_id}/reminders`
-Retrieves all reminders for a specific patient assigned under the calling doctor. *(Filters: reminder_id)*
+Retrieves all reminders for a specific patient assigned under the calling doctor. *(Filters: reminder_id, is_completed, after_datetime)*
 * **Access**: `DOCTOR`
 * **Success**: `200 OK`
 * **Client Errors**:
@@ -105,6 +126,18 @@ Retrieves all reminders for a specific patient assigned under the calling doctor
   * `404 NOT FOUND`: Target patient_id does not exist, or the patient is not assigned under this doctor.
 
 ---
+
+### `GET /self/patients/{patient_id}/gamedata`
+Retrieves all game records for a specific patient assigned under the calling doctor. *(Filters: session_id, game_type, after_datetime)*
+* **Access**: `DOCTOR`
+* **Success**: `200 OK`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: Caller does not hold a DOCTOR profile.
+  * `404 NOT FOUND`: Target patient_id does not exist, or the patient is not assigned under this doctor.
+
+---
+
 
 ## POST ENDPOINTS
 
@@ -129,7 +162,18 @@ Creates a new user profile.
 ---
 
 ### `POST /reminders`
-Creates a reminder record for any specified user. *(Pooled Data)*
+Creates new reminders for any specified user. *(Pooled Data)*
+* **Access**: `ADMIN`
+* **Success**: `201 CREATED`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: User does not possess ADMIN privileges.
+  * `404 NOT FOUND`: Specified target user_id does not exist.
+
+---
+
+### `POST /games`
+Creates new game records for any specified user. *(Pooled Data)*
 * **Access**: `ADMIN`
 * **Success**: `201 CREATED`
 * **Client Errors**:
@@ -152,7 +196,17 @@ Assigns the patient under the doctor's supervision.
 ---
 
 ### `POST /self/reminders`
-Creates a new reminder for the calling patient. *(Pooled Data)*
+Creates new reminders for the calling patient. *(Pooled Data)*
+* **Access**: `PATIENT`
+* **Success**: `201 CREATED`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: Caller is not a registered PATIENT.
+
+---
+
+### `POST /self/games`
+Creates new game records for the calling patient. *(Pooled Data)*
 * **Access**: `PATIENT`
 * **Success**: `201 CREATED`
 * **Client Errors**:
@@ -173,7 +227,7 @@ Creates a new patient profile and automatically binds their care assignment to t
 ---
 
 ### `POST /self/{patient_id}/reminder`
-Schedules a new reminder for a specific patient under the doctor's supervision. *(Pooled Data)*
+Creates new reminders for a specific patient under the doctor's supervision. *(Pooled Data)*
 * **Access**: `DOCTOR` 
 * **Success**: `201 CREATED`
 * **Client Errors**:
@@ -182,6 +236,7 @@ Schedules a new reminder for a specific patient under the doctor's supervision. 
   * `404 NOT FOUND`: Target patient_id does not exist, or the patient is not assigned under this doctor.
 
 ---
+
 
 ## PATCH ENDPOINTS
 

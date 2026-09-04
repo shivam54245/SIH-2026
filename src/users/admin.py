@@ -91,6 +91,13 @@ def get_all_reminders_info_requires_admin(reminder_id: int = None, patient_id: i
     )
 
 
+# Retrieves all game records for the calling patient. *(Filters: session_id, game_type, after_datetime)*
+# ADMIN
+@router.get("/games")
+def get_all_game_session_info_requires_admin(session_id: int = None, patient_id: int = None, game_type: str = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
+    return "Yet to be implemented."
+
+
 # endregion
 
 
@@ -131,41 +138,7 @@ def add_new_user_requires_admin(payload: RegisterRequest, session: Session = Dep
         message="User account created successfully",
         error=None,
     )
-
-
-# Creates a reminder record for any specified user. (Pooled Data)
-# ADMIN
-@router.post("/reminders", status_code=status.HTTP_201_CREATED)
-def add_new_reminder_requires_admin(payload: PooledReminderRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
-    reminders = []
-    for item in payload.reminder:
-        # Check if patient_id belongs to a patient
-        patient = session.get(UserProfile, item.patient_id)
-        if not patient or patient.role != Role.PATIENT:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "code": "INVALID_PATIENT_ID",
-                    "message": "User is not a patient or does not exist",
-                },
-            )
-
-        reminder = ReminderProfile(user_id=item.patient_id, time=item.time,
-                                   message=item.message, is_completed=item.is_completed)
-        reminders.append(reminder)
-
-    session.add_all(reminders)
-    session.commit()
-    for reminder in reminders:
-        session.refresh(reminder)
-
-    return ApiResponse(
-        success=True,
-        data={"reminder_ids": [r.id for r in reminders]},
-        message="Reminders added successfully",
-        error=None,
-    )
-
+    
 
 # Binds the care of the patient under the doctor's supervision
 # ADMIN, DOCTOR
@@ -231,6 +204,47 @@ def assign_patient_to_doctor_requires_admin_or_self_doctor(payload: AssignDoctor
             "assigned_at": new_link.assigned_at.isoformat(),
         },
     }
+
+
+# Creates a reminder record for any specified user. (Pooled Data)
+# ADMIN
+@router.post("/reminders", status_code=status.HTTP_201_CREATED)
+def add_new_reminder_requires_admin(payload: PooledReminderRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
+    reminders = []
+    for item in payload.reminder:
+        # Check if patient_id belongs to a patient
+        patient = session.get(UserProfile, item.patient_id)
+        if not patient or patient.role != Role.PATIENT:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "code": "INVALID_PATIENT_ID",
+                    "message": "User is not a patient or does not exist",
+                },
+            )
+
+        reminder = ReminderProfile(user_id=item.patient_id, time=item.time,
+                                   message=item.message, is_completed=item.is_completed)
+        reminders.append(reminder)
+
+    session.add_all(reminders)
+    session.commit()
+    for reminder in reminders:
+        session.refresh(reminder)
+
+    return ApiResponse(
+        success=True,
+        data={"reminder_ids": [r.id for r in reminders]},
+        message="Reminders added successfully",
+        error=None,
+    )
+
+
+# Creates new game records for any specified user. *(Pooled Data)*
+# ADMIN
+@router.post("/games", status_code=status.HTTP_201_CREATED)
+def add_new_reminder_requires_admin(payload: PooledGameSessionRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
+    return "Yet to be implemented."
 
 
 # endregion

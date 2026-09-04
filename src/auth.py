@@ -43,7 +43,7 @@ def get_current_user(
     session: Annotated[Session, Depends(get_session)], ) -> UserProfile:
     token = credentials.credentials
 
-    # TODO: Test credentials_exception (x3)
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail={"code": "INVALID_CREDENTIALS", "message": "Could not validate credentials"},

@@ -1,13 +1,10 @@
 
-from typing import Generic, List, Optional, TypeVar
+from typing import Optional
 from enum import Enum
 from datetime import datetime, timezone
-from pydantic import BaseModel
 from sqlalchemy import Engine, event
 from sqlmodel import SQLModel, Session, Field, create_engine
 from sqlalchemy import text, UniqueConstraint
-
-T = TypeVar("T")
 
 
 
@@ -115,28 +112,6 @@ class DoctorPatientLink(SQLModel, table=True):
         nullable=False,
         sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")},
     )
-
-
-
-
-
-# MODELS
-
-class ErrorDetail(BaseModel):
-    field: Optional[str] = None
-    issue: str
-
-
-class ErrorPayload(BaseModel):
-    code: str
-    details: Optional[List[ErrorDetail]] = None
-
-
-class ApiResponse(BaseModel, Generic[T]):
-    success: bool
-    data: Optional[T] = None
-    message: str
-    error: Optional[ErrorPayload] = None
 
 
 
