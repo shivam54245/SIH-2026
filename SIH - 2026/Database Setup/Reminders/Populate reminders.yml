@@ -12,13 +12,13 @@ http:
       {
         "reminder": [
           {
-            "patient_id": 11,
+            "patient_id": 6,
             "message": "Take Metformin 500mg post-breakfast",
             "time": "08:30:00",
             "is_completed": false
           },
           {
-            "patient_id": 11,
+            "patient_id": 6,
             "message": "Log fasting blood sugar level",
             "time": "07:15:00",
             "is_completed": true
