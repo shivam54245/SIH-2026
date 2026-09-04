@@ -1,5 +1,5 @@
 from sqlmodel import Session, select
-from database import Role, UserProfile
+from src.database import Role, UserProfile
 
 
 def test_assign_fails_when_doctor_does_not_exist(client, test_db_session: Session, admin_headers):

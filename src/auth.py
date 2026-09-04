@@ -9,7 +9,7 @@ from pwdlib import PasswordHash
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
-from database import UserProfile, Role, get_session
+from src.database import UserProfile, Role, get_session
 
 
 # API TOKEN SYSTEM

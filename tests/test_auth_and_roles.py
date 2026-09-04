@@ -1,6 +1,6 @@
 import pytest
 from sqlmodel import Session, select
-from database import UserProfile
+from src.database import UserProfile
 
 
 def test_endpoints_reject_unauthenticated_requests(client):

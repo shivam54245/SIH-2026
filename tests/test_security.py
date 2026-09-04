@@ -7,7 +7,7 @@ import pytest
 import base64
 import json
 
-from auth import ALGORITHM, SECRET_KEY
+from src.auth import ALGORITHM, SECRET_KEY
 
 
 

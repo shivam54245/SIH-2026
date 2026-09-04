@@ -4,8 +4,8 @@ from sqlalchemy import event
 from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 
-from auth import hash_password
-from database import Role, UserProfile, get_session
+from src.auth import hash_password
+from src.database import Role, UserProfile, get_session
 from main import app
 
 TEST_DATABASE_URL = "sqlite:///:memory:"

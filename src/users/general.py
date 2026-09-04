@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlmodel import Session, select
 
-from auth import *
-from database import *
-from models import *
+from src.auth import *
+from src.database import *
+from src.models import *
 
 
 router = APIRouter(tags=["General"])

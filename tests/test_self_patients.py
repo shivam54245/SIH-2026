@@ -1,6 +1,6 @@
 from sqlmodel import Session, select
-from database import DoctorPatientLink, Role, UserProfile
-from auth import hash_password
+from src.database import DoctorPatientLink, Role, UserProfile
+from src.auth import hash_password
 from conftest import authenticate_user
 
 

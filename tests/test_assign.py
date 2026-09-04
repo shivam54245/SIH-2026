@@ -1,6 +1,6 @@
 from sqlmodel import Session, select
-from database import DoctorPatientLink, Role, UserProfile
-from auth import hash_password
+from src.database import DoctorPatientLink, Role, UserProfile
+from src.auth import hash_password
 
 
 def test_admin_can_assign_patient_to_doctor(client, test_db_session: Session, admin_headers):

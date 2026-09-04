@@ -2,14 +2,14 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from auth import *
-from database import *
-from models import *
+from src.auth import *
+from src.database import *
+from src.models import *
 
-from src.admin import router as admin_router
-from src.doctor import router as doctor_router
-from src.patient import router as patient_router
-from src.general import router as general_router
+from src.users.admin import router as admin_router
+from src.users.doctor import router as doctor_router
+from src.users.patient import router as patient_router
+from src.users.general import router as general_router
 
 
 # APPLICATION SETUP

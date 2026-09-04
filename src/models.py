@@ -1,7 +1,7 @@
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr
 
-from database import Role
+from src.database import Role
 
 
 
