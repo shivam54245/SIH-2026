@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
     create_db_and_tables()
     yield
 
-app = FastAPI(title="NER Chetna", lifespan=lifespan)
+app = FastAPI(title="NER_Chetna", lifespan=lifespan)
 
 
 

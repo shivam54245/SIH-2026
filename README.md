@@ -1,4 +1,4 @@
-# NER Chetna API - SIH 2026
+# NER_Chetna API - SIH 2026
 * **URL:**
   * Online Server: https://dementia-care-yne7.onrender.com
   * Local Server: https://blazer-roaming-sapling.ngrok-free.dev/

@@ -143,7 +143,7 @@ class ApiResponse(BaseModel, Generic[T]):
 
 # DATABASE SETUP
 
-sqlite_file_name = "NER Chetna.db"
+sqlite_file_name = "NER_Chetna.db"
 
 engine = create_engine(
     f"sqlite:///{sqlite_file_name}",
