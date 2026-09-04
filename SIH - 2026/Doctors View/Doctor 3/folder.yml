@@ -1,0 +1,9 @@
+info:
+  name: Doctor 3
+  type: folder
+  seq: 3
+
+request:
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkci52aWtyYW0ub3J0aG9AbWVkaWNhcmUubmV0IiwiZXhwIjoxNzkxMDkzNzUzfQ.S6egeaQ2XBMbNxAp_hsia4ZzEXzN2WLIRyX_yoGgAKw

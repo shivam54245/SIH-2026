@@ -1,0 +1,7 @@
+info:
+  name: Doctors View
+  type: folder
+  seq: 2
+
+request:
+  auth: inherit

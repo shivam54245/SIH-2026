@@ -1,4 +1,4 @@
-# Dementia Care API - SIH 2026
+# NER Chetna API - SIH 2026
 * **URL:**
   * Online Server: https://dementia-care-yne7.onrender.com
   * Local Server: https://blazer-roaming-sapling.ngrok-free.dev/
@@ -6,17 +6,17 @@
 * **Documentation:**
   * Online Server: https://dementia-care-yne7.onrender.com/docs
   * Local Server:  https://blazer-roaming-sapling.ngrok-free.dev/docs
-  * *(`/docs` provides you with access to endpoints directly in the browser. You can test out the server there to get an idea about JSON strings.)*
+  * *(`/docs` provides you with access to endpoints directly in the browser. You can test out the server there to get an idea about JSON strings. Access token can be pasted on the top-right (Padlock Symbol) after login.)*
   <br>
 * **Miscellaneous:**
-  * [SIH Official PPT Link - **DO NOT SHARE**](https://1drv.ms/p/c/c3d52faaccdd0da3/IQCOI5O-pVHQSIkZ9-ftQqmwAaxSdVtsL0JXLOyf1YbGNxA?e=rZJXHc)
+  * [SIH PPT Link - **DO NOT SHARE, ANYONE CAN EDIT**](https://1drv.ms/p/c/c3d52faaccdd0da3/IQCOI5O-pVHQSIkZ9-ftQqmwAaxSdVtsL0JXLOyf1YbGNxA?e=rZJXHc)
   * [Notion Link](https://silly-hail-f25.notion.site/SIH-2026-3c8b1ece5c6880fb9088f338a17a3a51?source=copy_link)
   * [Hosting Site Dashboard](https://dashboard.render.com/)
 
 ---
 
 ### 🚨 Found a bug?
-Report all minor bugs, tweaks, unintentional behaviour, grammatical errors. <br>
+*Please report all minor bugs, tweaks, unintentional behaviour, grammatical errors.* <br>
 If you see a **500 Internal Server Error**, or any error starting with **5**, please message me since it indicates a server-side issue. Send me:
 1. **The endpoint**
 2. **The JSON body**
@@ -34,90 +34,178 @@ If you see a **500 Internal Server Error**, or any error starting with **5**, pl
 
 <br>
 
-# Endpoints & Schemas
+# Endpoints
+
+## GET ENDPOINTS
 
 ### `GET /`
-To verify if the server is awake and responding.
-* **Parameters:** None
-* **Success:** `200_OK`
+Health check endpoint to verify server status. 
+* **Access**: `PUBLIC` *(All users)*.
+* **Success**: `200 OK`
+* **Client Errors**: None.
 
 ---
 
-### `POST /api/auth/register`
-Registers a new user account across any role (`PATIENT`, `DOCTOR`, or `ADMIN`).
-* **Parameters:** None
-   <br> *(will require admin account to access in future)*
-* **Success:** `201_CREATED`
-* **Client Errors:** 
-  * `HTTP_409_CONFLICT`: EMAIL_ALREADY_EXISTS
-  * `422_UNPROCESSABLE_CONTENT`: ASSIGNED_DOCTOR_NOT_FOUND 
-
-**JSON Body:**
-* `email` *(string, required)*: Must be unique.
-* `password` *(string, required)*: Plain text password. Simple strings allowed for testing.
-* `role` *(string, required)*: `PATIENT`, `DOCTOR`, or `ADMIN`.
-* `full_name` *(string, required)*: Display name.
-* `specialization` *(string, optional)*: Used only when role is `DOCTOR`.
-* `stage_of_care` *(string, required for patients)*: `MILD`, `MODERATE`, or `SEVERE`.
-* `assigned_doctor_id` *(integer, optional)*: Must match a valid doctor's `user_id`.
-
-**Example:**
-``` json
-{
-  "email": "patient1@gmail.com",
-  "password": "qwerty123",
-  "role": "PATIENT",
-  "full_name": "John Denver",
-  "stage_of_care": "MILD",
-  "assigned_doctor_id": 1
-} 
-```
+### `GET /self`
+Retrieves account details for the current user.
+* **Access**: `ADMIN`, `DOCTOR`or `PATIENT` *(Authenticated users only)*
+* **Success**: `200 OK`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing, expired, or invalid bearer token.
 
 ---
-<br>
 
-# Database Schema
+### `GET /users`
+Retrieves a list of all registered users. *(Filters: user_id, role)*
+* **Access**: `ADMIN`
+* **Success**: `200 OK`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: User does not possess ADMIN privileges.
 
-Might change if I find some fields unnecessary. However, I have begun to use some of them so there is little chance the following tables will change now:
- - Users
- - Doctor Profiles
- - Patient Profiles
-
-```mermaid
-flowchart TB
-    %% Modern Slate & Teal Palette with High Contrast
-    classDef root fill:#1e293b,stroke:#38bdf8,stroke-width:2.5px,color:#f8fafc;
-    classDef profiles fill:#042f2e,stroke:#2dd4bf,stroke-width:2px,color:#f0fdfa;
-    classDef features fill:#2e1065,stroke:#c084fc,stroke-width:2px,color:#faf5ff;
-    classDef configs fill:#1c1917,stroke:#fbbf24,stroke-width:2px,color:#fffbeb;
-
-    U["<b>USERS</b><br/>━━━━━━━━━━━━━<br/>🔑 id (PK)<br/>📧 username / email<br/>🔒 hashed_password<br/>🏷️ role<br/><i>(ADMIN / DOCTOR / PATIENT)</i><br/>⚡ is_active"]:::root
-
-    D["<b>DOCTOR PROFILES</b><br/>━━━━━━━━━━━━━<br/>🔑 id (PK)<br/>🔗 user_id (FK)<br/>👤 full_name<br/>🩺 specialization"]:::profiles
-
-    P["<b>PATIENT PROFILES</b><br/>━━━━━━━━━━━━━<br/>🔑 id (PK)<br/>🔗 user_id (FK)<br/>👤 full_name<br/>📊 stage_of_care<br/><i>(MILD / MOD / SEVERE)</i><br/>🔗 assigned_doctor_id (FK)"]:::profiles
-
-    GS["<b>GAME SESSIONS</b><br/>━━━━━━━━━━━━━<br/>🔑 id (PK)<br/>🔗 patient_id (FK)<br/>🔗 game_id (FK)<br/>📦 session_data<br/>📅 session_date"]:::features
-
-    GT["<b>GAME TYPES</b><br/>━━━━━━━━━━━━━<br/>🔑 id (PK)<br/>🏷️ name / code<br/>⚙️ schema_config<br/>⚡ is_active"]:::configs
-
-    PR["<b>PATIENT REMINDERS</b><br/>━━━━━━━━━━━━━<br/>🔑 id (PK)<br/>🔗 patient_id (FK)<br/>🔗 template_id (FK)<br/>⏰ custom_time"]:::features
-
-    RT["<b>REMINDER TEMPLATES</b><br/>━━━━━━━━━━━━━<br/>🔑 id (PK)<br/>📝 title / task<br/>⏰ default_time<br/>⚡ is_active"]:::configs
-
-    RL["<b>REMINDER LOGS</b><br/>━━━━━━━━━━━━━<br/>🔑 id (PK)<br/>🔗 reminder_id (FK)<br/>📅 log_date<br/>✅ is_done"]:::features
-
-    %% Flow Arrows
-    U -->|1:1 per role| D
-    U -->|1:1 per role| P
-    D -->|1:N Assigns| P
-
-    P -->|1:N Plays| GS
-    GT -->|1:N Defines| GS
-
-    P -->|1:N Schedules| PR
-    RT -->|1:N Template| PR
-    PR -->|1:N Logs| RL
-```
 ---
+
+### `GET /reminders`
+Retrieves all reminders from all patients. *(Filters: patient_id, reminder_id)*
+* **Access**: `ADMIN`
+* **Success**: `200 OK`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: User does not possess ADMIN privileges.
+
+---
+
+### `GET /self/reminders`
+Retrieves all reminders for the calling patient. *(Filters: reminder_id)*
+* **Access**: `PATIENT`
+* **Success**: `200 OK`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: Caller is not a registered PATIENT.
+
+---
+
+### `GET /self/patients`
+Lists all patients actively assigned under the calling doctor. *(Filters: patient_id)*
+* **Access**: `DOCTOR`
+* **Success**: `200 OK`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: Caller does not hold a DOCTOR profile.
+
+---
+
+### `GET /self/patients/{patient_id}/reminders`
+Retrieves all reminders for a specific patient assigned under the calling doctor. *(Filters: reminder_id)*
+* **Access**: `DOCTOR`
+* **Success**: `200 OK`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: Caller does not hold a DOCTOR profile.
+  * `404 NOT FOUND`: Target patient_id does not exist, or the patient is not assigned under this doctor.
+
+---
+
+## POST ENDPOINTS
+
+### `POST /login`
+Creates an active session key for your account.
+* **Access**: `Public`
+* **Success**: `200 OK`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Invalid email or incorrect password.
+
+---
+
+### `POST /users`
+Creates a new user profile.
+* **Access**: `ADMIN`
+* **Success**: `201 CREATED`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: User does not possess ADMIN privileges.
+  * `409 CONFLICT`: A user with this email or username already exists.
+
+---
+
+### `POST /reminders`
+Creates a reminder record for any specified user. *(Pooled Data)*
+* **Access**: `ADMIN`
+* **Success**: `201 CREATED`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: User does not possess ADMIN privileges.
+  * `404 NOT FOUND`: Specified target user_id does not exist.
+
+---
+
+### `POST /assign`
+Assigns the patient under the doctor's supervision. 
+* **Access**: `ADMIN`, `DOCTOR`
+* **Success**: `201 CREATED`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: Doctor can only assign patients to themselves.
+  * `404 NOT FOUND`: Target doctor_id or patient_id does not exist.
+  * `409 CONFLCT`: The patient is already assigned to the doctor.
+
+---
+
+### `POST /self/reminders`
+Creates a new reminder for the calling patient. *(Pooled Data)*
+* **Access**: `PATIENT`
+* **Success**: `201 CREATED`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: Caller is not a registered PATIENT.
+
+---
+
+### `POST /self/patients`
+Creates a new patient profile and automatically binds their care assignment to the calling doctor.
+* **Access**: `DOCTOR`
+* **Success**: `201 CREATED`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: Caller is not authorized as a DOCTOR.
+  * `409 CONFLICT`: Patient record already exists.
+
+---
+
+### `POST /self/{patient_id}/reminder`
+Schedules a new reminder for a specific patient under the doctor's supervision. *(Pooled Data)*
+* **Access**: `DOCTOR` 
+* **Success**: `201 CREATED`
+* **Client Errors**:
+  * `401 UNAUTHORIZED`: Missing or invalid authentication token.
+  * `403 FORBIDDEN`: Caller does not hold a DOCTOR profile.
+  * `404 NOT FOUND`: Target patient_id does not exist, or the patient is not assigned under this doctor.
+
+---
+
+## PATCH ENDPOINTS
+
+## DELETE ENDPOINTS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

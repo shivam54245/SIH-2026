@@ -1,0 +1,7 @@
+info:
+  name: Patients View
+  type: folder
+  seq: 3
+
+request:
+  auth: inherit

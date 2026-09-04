@@ -1,0 +1,9 @@
+info:
+  name: Doctor 2
+  type: folder
+  seq: 2
+
+request:
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkci5hbmFueWEubmV1cm9AY2l0eWhvc3BpdGFsLmluIiwiZXhwIjoxNzkxMDkzNjM5fQ.N6B0zNQE2EUQrgbjGyX_Ee102rRo_jXSKUJiFsmdwkg

@@ -12,7 +12,10 @@ venv\Scripts\python.exe -m pip install
 OPEN LOCAL SERVER TO CLOUD:
 ngrok http --domain=blazer-roaming-sapling.ngrok-free.dev 8000
 
-SAVE/INSTALL DEPENDENCIES
+SAVE/INSTALL DEPENDENCIES:
 pip freeze > requirements.txt
 pip freeze | Out-File -Encoding utf8 requirements.txt
 pip install -r requirements.txt
+
+INSERT ADMIN ACCOUNT:
+INSERT INTO user_accounts (email, hashed_password, full_name, role) VALUES ('user@example.com', '$argon2id$v=19$m=65536,t=3,p=4$vkYyKD6YFx4fUrV/AIcY9Q$kG6m4hYeRU7j7p/hkvGyONXHlqFp46AvxJUK5xIWqlU', 'string', 'ADMIN');

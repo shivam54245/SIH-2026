@@ -1,0 +1,9 @@
+info:
+  name: Patient 2
+  type: folder
+  seq: 1
+
+request:
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdW5pdGEuZ3VwdGFAeWFob28uY29tIiwiZXhwIjoxNzkxMDk0MTM4fQ.xqqW9lBqXb75fhorPdYbSKxurmYXo_nQ5RXH-S2mig8

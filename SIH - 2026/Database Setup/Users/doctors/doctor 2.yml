@@ -1,0 +1,27 @@
+info:
+  name: doctor 2
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://127.0.0.1:8000/users
+  body:
+    type: json
+    data: |-
+      {
+          "email": "dr.ananya.neuro@cityhospital.in",
+          "password": "qwerty123",
+          "full_name": "Dr. Ananya Sen",
+          "role": "DOCTOR"
+        }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGV4YW1wbGUuY29tIiwiZXhwIjoxNzkxMDkxNTkyfQ.TMFFwNvmrf775AyGhwUUmup0wfdhzMQtzmKV74_syog
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

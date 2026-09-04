@@ -1,0 +1,85 @@
+info:
+  name: Populate reminders
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://127.0.0.1:8000/reminders
+  body:
+    type: json
+    data: |-
+      {
+        "reminder": [
+          {
+            "patient_id": 11,
+            "message": "Take Metformin 500mg post-breakfast",
+            "time": "08:30:00",
+            "is_completed": false
+          },
+          {
+            "patient_id": 11,
+            "message": "Log fasting blood sugar level",
+            "time": "07:15:00",
+            "is_completed": true
+          },
+          {
+            "patient_id": 7,
+            "message": "Take Amlodipine 5mg with water",
+            "time": "09:00:00",
+            "is_completed": false
+          },
+          {
+            "patient_id": 7,
+            "message": "Afternoon blood pressure monitoring",
+            "time": "14:00:00",
+            "is_completed": false
+          },
+          {
+            "patient_id": 8,
+            "message": "Use Salbutamol inhaler (2 puffs) before exercise",
+            "time": "06:45:00",
+            "is_completed": true
+          },
+          {
+            "patient_id": 8,
+            "message": "Record peak flow meter reading",
+            "time": "20:30:00",
+            "is_completed": false
+          },
+          {
+            "patient_id": 9,
+            "message": "Take Levothyroxine 50mcg on an empty stomach",
+            "time": "06:00:00",
+            "is_completed": true
+          },
+          {
+            "patient_id": 9,
+            "message": "30-minute evening walk session",
+            "time": "18:00:00",
+            "is_completed": false
+          },
+          {
+            "patient_id": 10,
+            "message": "Take Atorvastatin 20mg before bedtime",
+            "time": "21:30:00",
+            "is_completed": false
+          },
+          {
+            "patient_id": 10,
+            "message": "Hydration reminder: drink 500ml water",
+            "time": "11:00:00",
+            "is_completed": true
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGV4YW1wbGUuY29tIiwiZXhwIjoxNzkxMDU3OTY5fQ.0Eqs-T45XjpXcZ8T39VR-y90QgLobGB46rHEnrx5BpE
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

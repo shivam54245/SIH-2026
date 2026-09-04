@@ -1,0 +1,9 @@
+info:
+  name: Admin View
+  type: folder
+  seq: 4
+
+request:
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGV4YW1wbGUuY29tIiwiZXhwIjoxNzkxMDkxNTkyfQ.TMFFwNvmrf775AyGhwUUmup0wfdhzMQtzmKV74_syog
