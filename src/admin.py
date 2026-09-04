@@ -167,6 +167,70 @@ def add_new_reminder_requires_admin(payload: PooledReminderRequest, session: Ses
     )
 
 
+# Binds the care of the patient under the doctor's supervision
+# ADMIN, DOCTOR
+@router.post("/assign", status_code=status.HTTP_201_CREATED)
+def assign_patient_to_doctor_requires_admin_or_self_doctor(payload: AssignDoctorRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN, Role.DOCTOR}))):
+
+    # 1. Authorization: If caller is a DOCTOR, they can only assign patients to themselves
+    if (
+        current_user.role == Role.DOCTOR
+        and current_user.id != payload.doctor_id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Doctors can only assign patients to their own care",
+        )
+
+    # 2. Validate Doctor existence and role
+    doctor = session.get(UserProfile, payload.doctor_id)
+    if not doctor:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Doctor with ID {payload.doctor_id} not found or is not a doctor",
+        )
+
+    # 3. Validate Patient existence and role
+    patient = session.get(UserProfile, payload.patient_id)
+    if not patient or patient.role != Role.PATIENT:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Patient with ID {payload.patient_id} not found or is not a patient",
+        )
+
+    # 4. Check for duplicate assignment
+    existing_link = session.exec(
+        select(DoctorPatientLink).where(
+            DoctorPatientLink.doctor_id == payload.doctor_id,
+            DoctorPatientLink.patient_id == payload.patient_id,
+        )
+    ).first()
+
+    if existing_link:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This patient is already assigned to this doctor",
+        )
+
+    # 5. Persist link
+    new_link = DoctorPatientLink(
+        doctor_id=payload.doctor_id,
+        patient_id=payload.patient_id,
+    )
+    session.add(new_link)
+    session.commit()
+    session.refresh(new_link)
+
+    return {
+        "success": True,
+        "message": "Patient successfully assigned to doctor",
+        "data": {
+            "link_id": new_link.id,
+            "doctor_id": new_link.doctor_id,
+            "patient_id": new_link.patient_id,
+            "assigned_at": new_link.assigned_at.isoformat(),
+        },
+    }
 
 
 # endregion
