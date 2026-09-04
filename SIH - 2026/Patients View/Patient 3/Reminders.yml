@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://127.0.0.1:8000/self/reminders
+  url: http://127.0.0.1:8000/myaccount/reminders
   body:
     type: json
     data: ""
