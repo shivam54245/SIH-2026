@@ -81,11 +81,11 @@ def get_patients_reminders(patient_id: int = None, reminder_id: int = None, is_c
     if reminder_id is not None:
         query = query.where(ReminderProfile.id == reminder_id)
 
-    if after_datetime is not None:
-        query = query.where(ReminderProfile.last_modified >= after_datetime)
-
     if is_completed is not None:
         query = query.where(ReminderProfile.is_completed == is_completed)
+
+    if after_datetime is not None:
+        query = query.where(ReminderProfile.last_modified >= after_datetime)
 
     reminders = session.exec(query).all()
 
@@ -96,7 +96,7 @@ def get_patients_reminders(patient_id: int = None, reminder_id: int = None, is_c
                 "id": r.id,
                 "patient_id": r.user_id,
                 "message": r.message,
-                "time": r.last_modified,
+                "time": r.time,
                 "is_completed": r.is_completed,
                 "last_modified": r.last_modified,
             }
@@ -110,8 +110,67 @@ def get_patients_reminders(patient_id: int = None, reminder_id: int = None, is_c
 # Retrieves all game records for a specific patient assigned under the calling doctor. *(Filters: session_id, game_type, after_datetime)*
 # DOCTOR
 @router.get("/myaccount/patients/games")
-def get_patients_game_sessions(patient_id: int = None, session_id: int = None, game_type: str = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
-    return "Yet to be implemented."
+def get_patients_game_sessions(patient_id: int = None, game_session_id: int = None, game_type: str = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.DOCTOR}))):
+
+    # 1. Fetch all assigned patient IDs for this doctor
+    assigned_stmt = select(DoctorPatientLink.patient_id).where(
+        DoctorPatientLink.doctor_id == current_user.id
+    )
+    assigned_patient_ids = session.exec(assigned_stmt).all()
+
+    if not assigned_patient_ids:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "code": "PATIENT_NOT_ASSIGNED",
+                "message": "No patients are currently assigned to this doctor.",
+            },
+        )
+
+    # 2. Scope verification: ensure requested patient_id belongs to this doctor
+    if patient_id is not None:
+        if patient_id not in assigned_patient_ids:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={
+                    "code": "ACCESS_DENIED",
+                    "message": "You do not have permission to view this patient's records.",
+                },
+            )
+        target_ids = [patient_id]
+    else:
+        target_ids = assigned_patient_ids
+
+    # 3. Filter
+    query = select(GamedataProfile).where(GamedataProfile.user_id.in_(target_ids))
+
+    if game_session_id is not None:
+        query = query.where(GamedataProfile.id == game_session_id)
+
+    if game_type is not None:
+        query = query.where(GamedataProfile.game_type == game_type)
+
+    if after_datetime is not None:
+        query = query.where(GamedataProfile.last_modified >= after_datetime)
+
+
+    game_sessions = session.exec(query).all()
+
+    return ApiResponse(
+        success=True,
+        data=[
+            {
+                "id": game_record.id,
+                "patient_id": game_record.user_id,
+                "game_type":game_record.game_type,
+                "game_data":game_record.game_data,
+                "last_modified": game_record.last_modified,
+            }
+            for game_record in game_sessions
+        ],
+        message="Patient game sessions retrieved successfully",
+        error=None,
+    )
 
 
 

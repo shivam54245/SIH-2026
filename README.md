@@ -22,7 +22,6 @@ If you see a **500 Internal Server Error**, or any error starting with **5**, pl
 2. **The JSON body**
 3. **The error message**
 
-
 ---
 
 ### Online server limitations:
@@ -30,6 +29,7 @@ If you see a **500 Internal Server Error**, or any error starting with **5**, pl
 * The server will automatically reset after 15 minutes of inactivity. If you want to permanently store some data, let me know. I will manually place it in the database.
 * Why it's online: So the API is accessible without you having to download this repo and set up the virtual environment for it.
 * The local server can store data, but requires my computer is awake and logged in. I will keep it online as much as possible. Data will be available to the Online Server on the next commit.
+
 ---
 
 <br>
@@ -242,25 +242,11 @@ Creates new reminders for a specific patient under the doctor's supervision. *(P
 
 ## DELETE ENDPOINTS
 
+---
 
+# Database Schema
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<p align="center">
+  <img src="database_schema.svg" alt="Database Schema" width="750"/>
+</p>
 

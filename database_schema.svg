@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 980" width="100%" height="100%">
+  <defs>
+    <!-- Card Drop Shadow -->
+    <filter id="shadow" x="-8%" y="-8%" width="120%" height="120%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.65"/>
+    </filter>
+
+    <style>
+      .bg { fill: #191c1f; }
+      .card-border { fill: #111417; stroke: #0284c7; stroke-width: 2.2; rx: 14px; ry: 14px; }
+      .header-bg { fill: #0284c7; rx: 14px; ry: 14px; }
+      .header-mask { fill: #0284c7; }
+      .title-text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 700; fill: #ffffff; text-anchor: middle; letter-spacing: 0.3px; }
+      .field-name { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 600; fill: #e2e8f0; }
+      .field-type { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; fill: #7e8c9f; text-anchor: end; }
+      .divider { stroke: #21262d; stroke-width: 1; }
+      .pk-dot { fill: #f59e0b; }
+      .wire { fill: none; stroke: #38bdf8; stroke-width: 1.8; opacity: 0.75; }
+      .badge-bg { fill: #1e2530; stroke: #38bdf8; stroke-width: 1.2; rx: 5px; ry: 5px; opacity: 0.95; }
+      .badge-text { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; fill: #94a3b8; font-weight: 600; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1000" height="980" class="bg" />
+
+  <!-- Relational Connectors & Badges -->
+  <!-- Wire 1: user_accounts to doctor_patient_links -->
+  <path d="M 345 370 C 290 350, 240 280, 210 230" class="wire" />
+  <g transform="translate(290, 325)">
+    <rect x="-42" y="-11" width="84" height="22" class="badge-bg" />
+    <text x="0" y="4" class="badge-text">doctor_id → id</text>
+  </g>
+
+  <!-- Wire 2: user_accounts to game_data -->
+  <path d="M 585 285 C 640 260, 660 225, 700 215" class="wire" />
+  <g transform="translate(638, 235)">
+    <rect x="-35" y="-11" width="70" height="22" class="badge-bg" />
+    <text x="0" y="4" class="badge-text">user_id → id</text>
+  </g>
+
+  <!-- Wire 3: user_accounts to reminders -->
+  <path d="M 470 530 C 460 580, 435 620, 410 675" class="wire" />
+  <g transform="translate(428, 635)">
+    <rect x="-35" y="-11" width="70" height="22" class="badge-bg" />
+    <text x="0" y="4" class="badge-text">user_id → id</text>
+  </g>
+
+  <!-- ==================== TABLE 1: doctor_patient_links (Top Left) ==================== -->
+  <g transform="translate(25, 25)" filter="url(#shadow)">
+    <rect width="270" height="195" class="card-border" />
+    <rect width="270" height="42" class="header-bg" />
+    <rect y="28" width="270" height="14" class="header-mask" />
+    <text x="135" y="27" class="title-text">doctor_patient_links</text>
+
+    <!-- id -->
+    <text x="16" y="68" class="field-name">id</text>
+    <circle cx="218" cy="64" r="4.5" class="pk-dot" />
+    <text x="254" y="68" class="field-type">INTEGER</text>
+    <line x1="0" y1="80" x2="270" y2="80" class="divider" />
+
+    <!-- doctor_id -->
+    <text x="16" y="103" class="field-name">doctor_id</text>
+    <text x="254" y="103" class="field-type">INTEGER</text>
+    <line x1="0" y1="115" x2="270" y2="115" class="divider" />
+
+    <!-- patient_id -->
+    <text x="16" y="138" class="field-name">patient_id</text>
+    <text x="254" y="138" class="field-type">INTEGER</text>
+    <line x1="0" y1="150" x2="270" y2="150" class="divider" />
+
+    <!-- assigned_at -->
+    <text x="16" y="173" class="field-name">assigned_at</text>
+    <text x="254" y="173" class="field-type">DATETIME</text>
+  </g>
+
+  <!-- ==================== TABLE 2: game_data (Top Right) ==================== -->
+  <g transform="translate(700, 85)" filter="url(#shadow)">
+    <rect width="270" height="230" class="card-border" />
+    <rect width="270" height="42" class="header-bg" />
+    <rect y="28" width="270" height="14" class="header-mask" />
+    <text x="135" y="27" class="title-text">game_data</text>
+
+    <!-- id -->
+    <text x="16" y="68" class="field-name">id</text>
+    <circle cx="218" cy="64" r="4.5" class="pk-dot" />
+    <text x="254" y="68" class="field-type">INTEGER</text>
+    <line x1="0" y1="80" x2="270" y2="80" class="divider" />
+
+    <!-- user_id -->
+    <text x="16" y="103" class="field-name">user_id</text>
+    <text x="254" y="103" class="field-type">INTEGER</text>
+    <line x1="0" y1="115" x2="270" y2="115" class="divider" />
+
+    <!-- game_type -->
+    <text x="16" y="138" class="field-name">game_type</text>
+    <text x="254" y="138" class="field-type">VARCHAR</text>
+    <line x1="0" y1="150" x2="270" y2="150" class="divider" />
+
+    <!-- game_data -->
+    <text x="16" y="173" class="field-name">game_data</text>
+    <text x="254" y="173" class="field-type">VARCHAR</text>
+    <line x1="0" y1="185" x2="270" y2="185" class="divider" />
+
+    <!-- last_modified -->
+    <text x="16" y="208" class="field-name">last_modified</text>
+    <text x="254" y="208" class="field-type">DATETIME</text>
+  </g>
+
+  <!-- ==================== TABLE 3: user_accounts (Center) ==================== -->
+  <g transform="translate(345, 260)" filter="url(#shadow)">
+    <rect width="275" height="270" class="card-border" />
+    <rect width="275" height="44" class="header-bg" />
+    <rect y="30" width="275" height="14" class="header-mask" />
+    <text x="137" y="28" class="title-text">user_accounts</text>
+
+    <!-- id -->
+    <text x="16" y="70" class="field-name">id</text>
+    <circle cx="221" cy="66" r="4.5" class="pk-dot" />
+    <text x="259" y="70" class="field-type">INTEGER</text>
+    <line x1="0" y1="82" x2="275" y2="82" class="divider" />
+
+    <!-- email -->
+    <text x="16" y="106" class="field-name">email</text>
+    <text x="259" y="106" class="field-type">VARCHAR</text>
+    <line x1="0" y1="118" x2="275" y2="118" class="divider" />
+
+    <!-- hashed_password -->
+    <text x="16" y="142" class="field-name">hashed_password</text>
+    <text x="259" y="142" class="field-type">VARCHAR</text>
+    <line x1="0" y1="154" x2="275" y2="154" class="divider" />
+
+    <!-- full_name -->
+    <text x="16" y="178" class="field-name">full_name</text>
+    <text x="259" y="178" class="field-type">VARCHAR</text>
+    <line x1="0" y1="190" x2="275" y2="190" class="divider" />
+
+    <!-- role -->
+    <text x="16" y="214" class="field-name">role</text>
+    <text x="259" y="214" class="field-type">VARCHAR(7)</text>
+    <line x1="0" y1="226" x2="275" y2="226" class="divider" />
+
+    <!-- last_modified -->
+    <text x="16" y="250" class="field-name">last_modified</text>
+    <text x="259" y="250" class="field-type">DATETIME</text>
+  </g>
+
+  <!-- ==================== TABLE 4: reminders (Bottom Center) ==================== -->
+  <g transform="translate(140, 675)" filter="url(#shadow)">
+    <rect width="270" height="268" class="card-border" />
+    <rect width="270" height="42" class="header-bg" />
+    <rect y="28" width="270" height="14" class="header-mask" />
+    <text x="135" y="27" class="title-text">reminders</text>
+
+    <!-- id -->
+    <text x="16" y="68" class="field-name">id</text>
+    <circle cx="218" cy="64" r="4.5" class="pk-dot" />
+    <text x="254" y="68" class="field-type">INTEGER</text>
+    <line x1="0" y1="80" x2="270" y2="80" class="divider" />
+
+    <!-- user_id -->
+    <text x="16" y="103" class="field-name">user_id</text>
+    <text x="254" y="103" class="field-type">INTEGER</text>
+    <line x1="0" y1="115" x2="270" y2="115" class="divider" />
+
+    <!-- message -->
+    <text x="16" y="138" class="field-name">message</text>
+    <text x="254" y="138" class="field-type">VARCHAR</text>
+    <line x1="0" y1="150" x2="270" y2="150" class="divider" />
+
+    <!-- time -->
+    <text x="16" y="173" class="field-name">time</text>
+    <text x="254" y="173" class="field-type">VARCHAR</text>
+    <line x1="0" y1="185" x2="270" y2="185" class="divider" />
+
+    <!-- is_completed -->
+    <text x="16" y="208" class="field-name">is_completed</text>
+    <text x="254" y="208" class="field-type">BOOLEAN</text>
+    <line x1="0" y1="220" x2="270" y2="220" class="divider" />
+
+    <!-- last_modified -->
+    <text x="16" y="243" class="field-name">last_modified</text>
+    <text x="254" y="243" class="field-type">DATETIME</text>
+  </g>
+</svg>

@@ -62,7 +62,7 @@ class UserReminderRequest(BaseModel):
 
 
 class GameSessionRequest(BaseModel):
-    user_id: int
+    patient_id: int
     game_type: str
     game_data: str
 
@@ -88,10 +88,10 @@ class PooledUserReminderRequest(BaseModel):
 
 
 class PooledGameSessionRequest(BaseModel):
-    reminder: List[GameSessionRequest]
+    game_session: List[GameSessionRequest]
 
 
 class PooledUserGameSessionRequest(BaseModel):
-    reminder: List[UserGameSessionRequest]
+    game_session: List[UserGameSessionRequest]
 
     

@@ -52,23 +52,22 @@ def get_all_users(user_id: int = None, role: Role = None, after_datetime: dateti
 # Retrieves a list of all reminders form all patients. (Filters: reminder_id, patient_id, is_completed, after_datetime)
 # ADMIN
 @router.get("/reminders")
-def get_all_reminders(reminder_id: int = None, patient_id: int = None, is_completed: bool = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
+def get_all_reminders(patient_id: int = None, reminder_id: int = None, is_completed: bool = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
 
     query = select(ReminderProfile)
 
     # Filters
+    if patient_id:
+        query = query.where(ReminderProfile.user_id == patient_id)
 
     if reminder_id:
         query = query.where(ReminderProfile.id == reminder_id)
 
-    if patient_id:
-        query = query.where(ReminderProfile.user_id == patient_id)
+    if is_completed is not None:
+        query = query.where(ReminderProfile.is_completed == is_completed)
 
     if after_datetime:
         query = query.where(ReminderProfile.last_modified >= after_datetime)
-
-    if is_completed != None:
-        query = query.where(ReminderProfile.is_completed == is_completed)
 
     reminders = session.exec(query).all()
 
@@ -91,11 +90,44 @@ def get_all_reminders(reminder_id: int = None, patient_id: int = None, is_comple
     )
 
 
-# Retrieves all game records for the calling patient. *(Filters: session_id, game_type, after_datetime)*
+# Retrieves all game records for the calling patient. *(Filters: game_session_id, game_type, after_datetime)*
 # ADMIN
 @router.get("/games")
-def get_all_game_sessions(session_id: int = None, patient_id: int = None, game_type: str = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
-    return "Yet to be implemented."
+def get_all_game_sessions(patient_id: int = None, game_session_id: int = None, game_type: str = None, after_datetime: datetime = None, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
+
+    query = select(GamedataProfile)
+    
+    # Filters
+    if patient_id:
+        query = query.where(GamedataProfile.user_id == patient_id)
+
+    if game_session_id:
+        query = query.where(GamedataProfile.id == game_session_id)
+
+    if game_type:
+        query = query.where(GamedataProfile.game_type == game_type)
+
+    if after_datetime:
+        query = query.where(GamedataProfile.last_modified >= after_datetime)
+
+    game_sessions = session.exec(query).all()
+
+    return ApiResponse(
+        success=True,
+        data=[
+            {
+                "id": game_record.id,
+                "user_id": game_record.user_id,
+                "game_type": game_record.game_type,
+                "game_data": game_record.game_data,
+                "last_modified": game_record.last_modified
+                
+            }
+            for game_record in game_sessions
+        ],
+        message="Game session info retrieved successfully",
+        error=None,
+    )
 
 
 # endregion
@@ -230,11 +262,38 @@ def add_new_reminders_for_all_patients(payload: PooledReminderRequest, session: 
     )
 
 
-# Creates new game records for any specified user. *(Pooled Data)*
+# Creates new game records for any specified user. (Pooled Data)
 # ADMIN
 @router.post("/games", status_code=status.HTTP_201_CREATED)
 def add_new_game_sessions_for_all_patients(payload: PooledGameSessionRequest, session: Session = Depends(get_session), current_user: UserProfile = Depends(require_roles({Role.ADMIN}))):
-    return "Yet to be implemented."
+    
+    game_sessions = []
+    for item in payload.game_session:
+        # Check if patient_id belongs to a patient
+        patient = session.get(UserProfile, item.patient_id)
+        if not patient or patient.role != Role.PATIENT:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "code": "INVALID_PATIENT_ID",
+                    "message": "User is not a patient or does not exist",
+                },
+            )
+
+        game_data = GamedataProfile(user_id=item.patient_id, game_type=item.game_type, game_data=item.game_data)
+        game_sessions.append(game_data)
+
+    session.add_all(game_sessions)
+    session.commit()
+    for game_data in game_sessions:
+        session.refresh(game_data)
+
+    return ApiResponse(
+        success=True,
+        data={"game_session_ids": [g.id for g in game_sessions]},
+        message="Game Session added successfully",
+        error=None,
+    )
 
 
 # endregion
