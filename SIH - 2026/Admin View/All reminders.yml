@@ -5,7 +5,10 @@ info:
 
 http:
   method: GET
-  url: http://127.0.0.1:8000/reminders
+  url: ""
+  headers:
+    - name: patient_id
+      value: "8"
   params:
     - name: patient_id
       value: ""
@@ -38,7 +41,9 @@ http:
           }
         ]
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGV4YW1wbGUuY29tIiwiZXhwIjoxNzkxMDkxNTkyfQ.TMFFwNvmrf775AyGhwUUmup0wfdhzMQtzmKV74_syog
 
 settings:
   encodeUrl: true
